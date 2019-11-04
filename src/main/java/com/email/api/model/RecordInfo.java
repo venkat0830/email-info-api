@@ -1,20 +1,26 @@
 package com.email.api.model;
 
+import org.springframework.data.annotation.Transient;
+
+import com.email.api.utilities.LocalDate;
+
 public class RecordInfo {
 	
 	private String recordId;
 	private String recordType;
 	private String recordStatus;
+	private String recordLastUpdateDate;
 	
 	public RecordInfo( ) {
 		
 	}
 
-	public RecordInfo(String recordId, String recordType, String recordStatus) {
+	public RecordInfo(String recordId, String recordType, String recordStatus, String recordLastUpdateDate) {
 		super();
 		this.recordId = recordId;
 		this.recordType = recordType;
 		this.recordStatus = recordStatus;
+		this.recordLastUpdateDate = recordLastUpdateDate;
 	}
 
 	public String getRecordId() {
@@ -39,6 +45,15 @@ public class RecordInfo {
 
 	public void setRecordStatus(String recordStatus) {
 		this.recordStatus = recordStatus;
+	}
+	
+	public String getRecordLastUpdateDate() {
+		return recordLastUpdateDate;
+	}
+
+	public void setRecordLastUpdateDate(String value) {
+		LocalDate local = new LocalDate();
+		this.recordLastUpdateDate = local.getLastUpdatedDate(0);
 	}
 	
 	

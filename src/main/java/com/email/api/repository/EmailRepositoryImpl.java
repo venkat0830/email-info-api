@@ -1,5 +1,6 @@
 package com.email.api.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +11,10 @@ import org.springframework.stereotype.Repository;
 
 import com.email.api.model.EmailDetails;
 import com.email.api.model.RecordDetails;
-
+import com.email.api.utilities.LocalDate;
 
 @Repository
-public class EmailRepositoryImpl  implements EmailRepository {
-	
+public class EmailRepositoryImpl implements EmailRepository {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -27,11 +27,12 @@ public class EmailRepositoryImpl  implements EmailRepository {
 	}
 
 	@Override
-	public RecordDetails getDocuments(String providerTin) {
+	public List<RecordDetails> getDocuments(String providerTin) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("providerDetails.providerTin").is(providerTin));
-		query.addCriteria(Criteria.where("recordInfo.recordType").is("RECON"));
-		return mongoTemplate.findOne(query, RecordDetails.class);
+//		 String recoredLastUpdateDate = LocalDate.getLastUpdatedDate(1);
+//		 query.addCriteria(Criteria.where("recordInfo.recordLastUpdateDate").gt(recoredLastUpdateDate));
+		return mongoTemplate.find(query, RecordDetails.class);
 	}
-	
+
 }

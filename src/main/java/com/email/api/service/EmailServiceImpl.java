@@ -23,17 +23,20 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	public void sendEmail() {
 		SimpleMailMessage mailMessage = null;
-		List<EmailDetails> details = emailRepository.getEmailDetails("reconFrequency");
+		List<EmailDetails> details = emailRepository.getEmailDetails("Daily");
 		for (EmailDetails emailDetails : details) {
-			mailMessage = new SimpleMailMessage();
-			mailMessage.setTo(emailDetails.getReconEmailAddress());
-			mailMessage.setSubject("Test Email ");
-			RecordDetails recordDetails = emailRepository.getDocuments(emailDetails.getProviderTin());
-			mailMessage.setText(recordDetails.getRecordInfo().getRecordId());
-			javaMailSender.send(mailMessage);
+			List<RecordDetails> recordDetails = emailRepository.getDocuments(emailDetails.getProviderTin());
+			for (RecordDetails recDetail : recordDetails) {
+				mailMessage = new SimpleMailMessage();
+				mailMessage.setTo(emailDetails.getReconEmailAddress());
+				System.out.println("received email:" +recDetail.getRecordInfo().getRecordLastUpdateDate());
+				mailMessage.setSubject("Test Email ");
+
+				mailMessage.setText(recDetail.getRecordInfo().getRecordId());
+				javaMailSender.send(mailMessage);
+			}
 		}
 
-		
 	}
 
 }
