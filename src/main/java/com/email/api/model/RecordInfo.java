@@ -5,14 +5,14 @@ import org.springframework.data.annotation.Transient;
 import com.email.api.utilities.LocalDate;
 
 public class RecordInfo {
-	
+
 	private String recordId;
 	private String recordType;
 	private String recordStatus;
 	private String recordLastUpdateDate;
-	
-	public RecordInfo( ) {
-		
+
+	public RecordInfo() {
+
 	}
 
 	public RecordInfo(String recordId, String recordType, String recordStatus, String recordLastUpdateDate) {
@@ -46,16 +46,13 @@ public class RecordInfo {
 	public void setRecordStatus(String recordStatus) {
 		this.recordStatus = recordStatus;
 	}
-	
+
 	public String getRecordLastUpdateDate() {
 		return recordLastUpdateDate;
 	}
 
-	public void setRecordLastUpdateDate(String value) {
-		LocalDate local = new LocalDate();
-		this.recordLastUpdateDate = local.getLastUpdatedDate(0);
+	public void setRecordLastUpdateDate(String recordLastUpdateDate) {
+		this.recordLastUpdateDate = recordLastUpdateDate;
 	}
-	
-	
 
 }
