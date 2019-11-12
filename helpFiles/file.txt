@@ -1,0 +1,229 @@
+@Repository
+public class EmailRepositoryImpl implements EmailRepository {
+
+	@Autowired
+	MongoTemplate mongoTemplate;
+
+	@Override
+	public List<EmailResponseDetails> getEmailDetails(String frequency) {
+		DBCollection recordsList = (DBCollection) mongoTemplate.getCollection("emailCollection");
+		BasicDBObject orQuery = new BasicDBObject();
+		List<BasicDBObject> queryList = new ArrayList<>();
+		queryList.add(new BasicDBObject("reconFrequency", frequency));
+		queryList.add(new BasicDBObject("pendFrequency", frequency));
+		orQuery.put("$or", queryList);
+		List<DBObject> result = recordsList.find(orQuery).toArray();
+		List<EmailResponseDetails> list = new ArrayList<>();
+		for (DBObject dbObject : result) {
+			list.add(getConvertedEmailDeatils(dbObject));
+		}
+		return list;
+	}
+
+	private EmailResponseDetails getConvertedEmailDeatils(DBObject dbObject) {
+		EmailResponseDetails emailResponseDetails = new EmailResponseDetails();
+		emailResponseDetails.setPendFrequency((String) dbObject.get("pendFrequency"));
+		emailResponseDetails.setPendAlert((Boolean) dbObject.get("pendFrequency"));
+		emailResponseDetails.setPendEmailAddress((String) dbObject.get("pendEmailAddress"));
+		emailResponseDetails.setReconFrequency((String) dbObject.get("reconFrequency"));
+		emailResponseDetails.setRecordAlert(((Boolean) dbObject.get("reconFrequency")));
+		emailResponseDetails.setReconEmailAddress((String) dbObject.get("reconEmailAddress"));
+		emailResponseDetails.setProviderTin((String) dbObject.get("providerTin"));
+		return emailResponseDetails;
+	}
+
+	@Override
+	public int getRecordList(String providerTin, String recordType, String frequency) {
+		DBCollection recordsList = (DBCollection) mongoTemplate.getCollection("emailCollection");
+		BasicDBObject andQuery = new BasicDBObject();
+		List<BasicDBObject> queryList = new ArrayList<>();
+		queryList.add(new BasicDBObject("providerDetails.providerTin", providerTin));
+		queryList.add(new BasicDBObject("recordInfo.recordType", recordType));
+		andQuery.put("$and", queryList);
+		List<DBObject> result = recordsList.find(andQuery).toArray();
+
+		List<Record> recordList = new ArrayList<>();
+		for (DBObject dbObject : result) {
+			Record record = getConvertedRecord(dbObject);
+			recordList.add(record);
+		}
+
+		return getDateFilteredRecords(recordList, frequency).size();
+	}
+
+	private Record getConvertedRecord(DBObject dbObject) {
+		Record record = new Record();
+		RecordInfo recordInfo = (RecordInfo) dbObject.get("recordInfo");
+		record.setRecordInfo(recordInfo);
+		return record;
+	}
+
+	private List<Record> getDateFilteredRecords(List<Record> resultsRecords, String frequency) {
+		List<Record> fillterRecords = new ArrayList<Record>();
+		Date recoredLastUpdateDate = new Date();
+		if (frequency.equals(EmailConstants.FREQ_DAILY)) {
+			recoredLastUpdateDate = getLastUpdatedDate(1);
+		}
+		if (frequency.equals(EmailConstants.FREQ_WEEKLY)) {
+			recoredLastUpdateDate = getLastUpdatedDate(7);
+		}
+		for (Record record : resultsRecords) {
+			if (recoredLastUpdateDate.after(getFromatedDate(record.getRecordInfo().getRecordLastUpdateDate()))) {
+				fillterRecords.add(record);
+			}
+		}
+		return fillterRecords;
+	}
+
+	private static final String DATE = "yyyy-MM-dd HH:mm:ss";
+
+	public static Date getFromatedDate(String lastDate) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
+		Date formatDate = new Date();
+		try {
+			formatDate = simpleDateFormat.parse(simpleDateFormat.format(lastDate));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return formatDate;
+	}
+
+	public static Date getLastUpdatedDate(int lastDate) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, lastDate);
+		Date dailyDateTime = cal.getTime();
+		Date formatDate = new Date();
+		try {
+			formatDate = simpleDateFormat.parse(simpleDateFormat.format(dailyDateTime));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return formatDate;
+	}
+}
+=============================
+package com.assignment.springboot.mongo.service;
+
+import java.util.List;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import com.assignment.springboot.mongo.model.EmailResponseDetails;
+import com.assignment.springboot.mongo.repository.EmailRepositoryImpl;
+import com.assignment.springboot.mongo.utill.EmailConstants;
+
+@Service
+public class EmailServiceImpl implements EmailService {
+
+	@Autowired
+	private JavaMailSender javaMailSender;
+
+	@Autowired
+	private EmailRepositoryImpl emailRepository;
+
+	@Scheduled(cron = "0 0 8 ? * MON-FRI")
+	@Override
+	public void sendDailyEmail() {
+		List<EmailResponseDetails> details = emailRepository.getEmailDetails(EmailConstants.FREQ_DAILY);
+		for (EmailResponseDetails emailDetails : details) {
+			if (emailDetails.getRecordAlert() && EmailConstants.FREQ_DAILY.equals(emailDetails.getReconFrequency())) {
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						EmailConstants.RECORD_TYPE_RECON, EmailConstants.FREQ_DAILY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, EmailConstants.MAIL_DAILY_RECON_SUBJECT,
+							emailDetails.getReconEmailAddress(), EmailConstants.RECORD_TYPE_RECON,
+							EmailConstants.FREQ_DAILY);
+				}
+			}
+			if (emailDetails.getPendAlert() && EmailConstants.FREQ_DAILY.equals(emailDetails.getPendFrequency())) {
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						EmailConstants.RECORD_TYPE_PEND, EmailConstants.FREQ_DAILY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, EmailConstants.MAIL_DAILY_PEND_SUBJECT,
+							emailDetails.getPendEmailAddress(), EmailConstants.RECORD_TYPE_RECON,
+							EmailConstants.FREQ_DAILY);
+				}
+			}
+
+		}
+
+	}
+
+	@Scheduled(cron = "0 0 8 ? * MON")
+	@Override
+	public void sendWeeklyEmail() {
+
+		List<EmailResponseDetails> details = emailRepository.getEmailDetails(EmailConstants.FREQ_WEEKLY);
+		for (EmailResponseDetails emailDetails : details) {
+			if (emailDetails.getRecordAlert() && EmailConstants.FREQ_WEEKLY.equals(emailDetails.getReconFrequency())) {
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						EmailConstants.RECORD_TYPE_RECON, EmailConstants.FREQ_WEEKLY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, EmailConstants.MAIL_WEEKLY_RECON_SUBJECT,
+							emailDetails.getReconEmailAddress(), EmailConstants.RECORD_TYPE_RECON,
+							EmailConstants.FREQ_WEEKLY);
+				}
+			}
+			if (emailDetails.getPendAlert() && EmailConstants.FREQ_WEEKLY.equals(emailDetails.getPendFrequency())) {
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						EmailConstants.RECORD_TYPE_PEND, EmailConstants.FREQ_WEEKLY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, EmailConstants.MAIL_WEEKLY_PEND_SUBJECT,
+							emailDetails.getPendEmailAddress(), EmailConstants.RECORD_TYPE_RECON,
+							EmailConstants.FREQ_WEEKLY);
+				}
+			}
+
+		}
+
+	}
+
+	private void sendRecord(int count, String subject, String emailAddress, String recordType, String frequency) {
+		String content = getHTMLMessage(count, recordType, frequency);
+		sendMail(emailAddress, subject, content);
+	}
+
+	private String getHTMLMessage(int count, String recordType, String frequency) {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("<!DOCTYPE html><html>");
+		stringBuilder.append("<head></head><body> <p>Hello Care Provider,</p></br> <p> You have ");
+		stringBuilder.append(count);
+		if (EmailConstants.RECORD_TYPE_PEND.equals(recordType) && EmailConstants.FREQ_DAILY.equals(frequency)) {
+			stringBuilder.append(" recon tickets that have been update in last 24hrs,");
+		} else if (EmailConstants.RECORD_TYPE_RECON.equals(recordType) && EmailConstants.FREQ_DAILY.equals(frequency)) {
+			stringBuilder.append(" pending tickets that have been update in last 24hrs,");
+		} else if (EmailConstants.RECORD_TYPE_PEND.equals(recordType) && EmailConstants.FREQ_WEEKLY.equals(frequency)) {
+			stringBuilder.append(" recon tickets that have been update in last 7 days,");
+		} else
+			if (EmailConstants.RECORD_TYPE_RECON.equals(recordType) && EmailConstants.FREQ_WEEKLY.equals(frequency)) {
+			stringBuilder.append(" pending tickets that have been update in last 7 days,");
+		}
+		stringBuilder.append(
+				" To view those update please <a href=\"https://www.google.com\" target=\"_blank\">click here</a> </br>");
+		stringBuilder.append(
+				"For help using Trackit, refer to the quick reference guide or sign up for training webinar</p>");
+		stringBuilder.append("</body></html>");
+		return stringBuilder.toString();
+	}
+
+	private void sendMail(String to, String subject, String text) {
+		MimeMessage mail = javaMailSender.createMimeMessage();
+		try {
+			MimeMessageHelper helper = new MimeMessageHelper(mail, true);
+			helper.setTo(to);
+			helper.setSubject(subject);
+			helper.setText(text, true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		javaMailSender.send(mail);
+	}
+}
