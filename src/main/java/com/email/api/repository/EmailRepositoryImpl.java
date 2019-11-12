@@ -24,7 +24,9 @@ public class EmailRepositoryImpl implements EmailRepository {
 	@Override
 	public List<EmailDetails> getEmailDetails(String frequency) {
 		Query query = new Query();
-		query.addCriteria(Criteria.where("reconFrequency").is(frequency));
+		Criteria criteria = new Criteria();
+		criteria.orOperator(new Criteria("reconFrequency").is(frequency), new Criteria("pendFrequency").is(frequency));
+		query.addCriteria(criteria);
 		return mongoTemplate.find(query, EmailDetails.class);
 	}
 
@@ -33,9 +35,7 @@ public class EmailRepositoryImpl implements EmailRepository {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("providerDetails.providerTin").is(providerTin));
 		query.addCriteria(Criteria.where("recordInfo.recordType").is(recordType));
-
 		List<RecordDetails> resultsRecords = mongoTemplate.find(query, RecordDetails.class);
-
 		return getDateFilteredRecords(resultsRecords, frequency);
 	}
 
@@ -44,6 +44,7 @@ public class EmailRepositoryImpl implements EmailRepository {
 		Date recoredLastUpdateDate = new Date();
 		if (frequency.equals(Constants.FREQ_DAILY)) {
 
+			
 			recoredLastUpdateDate = LocalDate.getLastUpdatedDate(1);
 		}
 		if (frequency.equals(Constants.FREQ_WEEKLY)) {
@@ -58,4 +59,5 @@ public class EmailRepositoryImpl implements EmailRepository {
 		return fillterRecords;
 	}
 
+	
 }

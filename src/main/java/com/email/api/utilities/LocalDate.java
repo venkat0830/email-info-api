@@ -20,7 +20,7 @@ public class LocalDate {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Date formatDate = new Date();
 		try {
-			formatDate = simpleDateFormat.parse(simpleDateFormat.format(lastDate));
+			formatDate = simpleDateFormat.parse(lastDate);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
