@@ -2,6 +2,6 @@ package com.email.api.service;
 
 public interface EmailService {
 
-	void sendDailyEmail();
-	void sendWeeklyEmail();
+	void sendDailyEmail() throws Exception;
+	void sendWeeklyEmail()throws Exception;
 }

@@ -30,7 +30,7 @@ public class LocalDate {
 	public static Date getLastUpdatedDate(int lastDate) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, -lastDate);
+		cal.add(Calendar.DATE, lastDate);
 		Date dailyDateTime = cal.getTime();
 		Date formatDate = new Date();
 		try {

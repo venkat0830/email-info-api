@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.email.api.model.EmailDetails;
 import com.email.api.service.EmailService;
+import com.email.api.utilities.BaseResponse;
 
 @RestController
 public class EmailNotificationController {
@@ -17,15 +18,37 @@ public class EmailNotificationController {
 	@Autowired
 	EmailService emailService;
 
-	@RequestMapping(value = "/retrieveDailyEmail", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<Object> getEmailDetails() {
+	@RequestMapping(value = "/retrieveWeeklyEmail", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<BaseResponse> getWeeklyEmailDetails() {
+		try {
 
-	     emailService.sendDailyEmail();
-	    // emailService.sendDailyPendEmail(); 
-		// emailService.sendWeeklyEmail();
-
-		return new ResponseEntity<Object>(HttpStatus.OK);
+			emailService.sendWeeklyEmail();
+			BaseResponse response = new BaseResponse();
+			response.setMessage("200 Success");
+			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("Exception Occured:");
+			BaseResponse response = new BaseResponse();
+			response.setMessage("Internal server error");
+			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
 	}
 
+	@RequestMapping(value = "/retrieveDailyEmail", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<BaseResponse> getDailyEmailDetails() {
+		try {
+
+			emailService.sendDailyEmail();
+			BaseResponse response = new BaseResponse();
+			response.setMessage("200 Success");
+			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("Exception Occured:");
+			BaseResponse response = new BaseResponse();
+			response.setMessage("Internal server error");
+			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
 }
