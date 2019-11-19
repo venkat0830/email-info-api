@@ -27,10 +27,18 @@ public class LocalDate {
 		return formatDate;
 	}
 
-	public static Date getLastUpdatedDate(int lastDate) {
+	public static Date getLastUpdatedDate(String frequency) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, lastDate);
+		if (frequency.equals(Constants.FREQ_DAILY)) {
+			cal.add(Calendar.DATE, -1);
+			cal.add(Calendar.HOUR, -2);
+		}
+		if (frequency.equals(Constants.FREQ_WEEKLY)) {
+			cal.add(Calendar.DATE, -7);
+			cal.add(Calendar.HOUR, -2);
+		}
+
 		Date dailyDateTime = cal.getTime();
 		Date formatDate = new Date();
 		try {

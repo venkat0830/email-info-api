@@ -42,12 +42,6 @@ public class EmailRepositoryImpl implements EmailRepository {
 	private List<RecordDetails> getDateFilteredRecords(List<RecordDetails> resultsRecords, String frequency) {
 		List<RecordDetails> fillterRecords = new ArrayList<>();
 		Date recoredLastUpdateDate = new Date();
-		if (frequency.equals(Constants.FREQ_DAILY)) {
-
-			recoredLastUpdateDate = LocalDate.getLastUpdatedDate(0);
-		} else if (frequency.equals(Constants.FREQ_WEEKLY)) {
-			recoredLastUpdateDate = LocalDate.getLastUpdatedDate(6);
-		}
 		for (RecordDetails record : resultsRecords) {
 			if (recoredLastUpdateDate
 					.after(LocalDate.getFromatedDate(record.getRecordInfo().getRecordLastUpdateDate()))) {
