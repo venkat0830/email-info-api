@@ -41,10 +41,10 @@ public class EmailRepositoryImpl implements EmailRepository {
 
 	private List<RecordDetails> getDateFilteredRecords(List<RecordDetails> resultsRecords, String frequency) {
 		List<RecordDetails> fillterRecords = new ArrayList<>();
-		Date recoredLastUpdateDate = new Date();
+		Date recoredLastUpdateDate = LocalDate.getLastUpdatedDate(frequency);
 		for (RecordDetails record : resultsRecords) {
 			if (recoredLastUpdateDate
-					.after(LocalDate.getFromatedDate(record.getRecordInfo().getRecordLastUpdateDate()))) {
+					.before(LocalDate.getFromatedDate(record.getRecordInfo().getRecordLastUpdateDate()))) {
 
 				fillterRecords.add(record);
 			}

@@ -31,12 +31,10 @@ public class LocalDate {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Calendar cal = Calendar.getInstance();
 		if (frequency.equals(Constants.FREQ_DAILY)) {
-			cal.add(Calendar.DATE, -1);
-			cal.add(Calendar.HOUR, -2);
+			cal.add(Calendar.HOUR_OF_DAY, -26);
 		}
 		if (frequency.equals(Constants.FREQ_WEEKLY)) {
-			cal.add(Calendar.DATE, -7);
-			cal.add(Calendar.HOUR, -2);
+		cal.add(Calendar.HOUR_OF_DAY, -170);
 		}
 
 		Date dailyDateTime = cal.getTime();
