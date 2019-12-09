@@ -35,27 +35,25 @@ public class EmailServiceImpl implements EmailService {
 	public void sendDailyEmail() throws Exception {
 		List<EmailDetails> details = emailRepository.getEmailDetails(Constants.FREQ_DAILY);
 		for (EmailDetails emailDetails : details) {
-			// if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
-			// && Constants.FREQ_DAILY.equals(emailDetails.getReconFrequency())) {
-			// List<RecordDetails> recordDetails =
-			// emailRepository.getRecordList(emailDetails.getProviderTin(),
-			// Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
-			//
-			// if (!recordDetails.isEmpty()) {
-			// sendRecord(recordDetails.size(), Constants.MAIL_DAILY_RECON_SUBJECT,
-			// emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON,
-			// Constants.FREQ_DAILY);
-			// }
-			//
-			// }
+			if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
+					&& Constants.FREQ_DAILY.equals(emailDetails.getReconFrequency())) {
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
+
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, Constants.MAIL_DAILY_RECON_SUBJECT, emailDetails.getReconEmailAddress(),
+							Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY, emailDetails.getPrimaryEmailAddress());
+				}
+
+			}
 			if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
 					&& Constants.FREQ_DAILY.equals(emailDetails.getPendFrequency())) {
-				List<RecordDetails> recordDetails = emailRepository.getRecordList("636987458",
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
 
-				if (!recordDetails.isEmpty()) {
-					sendRecord(recordDetails.size(), Constants.MAIL_DAILY_PEND_SUBJECT,
-							emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, Constants.MAIL_DAILY_PEND_SUBJECT, emailDetails.getPendEmailAddress(),
+							Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY, emailDetails.getPrimaryEmailAddress());
 				}
 				break;
 
@@ -70,35 +68,41 @@ public class EmailServiceImpl implements EmailService {
 			if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
 
 					&& Constants.FREQ_WEEKLY.equals(emailDetails.getReconFrequency())) {
-				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
 
-				if (!recordDetails.isEmpty()) {
-					sendRecord(recordDetails.size(), Constants.MAIL_WEEKLY_RECON_SUBJECT,
-							emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, Constants.MAIL_WEEKLY_RECON_SUBJECT, emailDetails.getReconEmailAddress(),
+							Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY, emailDetails.getPrimaryEmailAddress());
 
 				}
 			}
 			if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
 					&& Constants.FREQ_WEEKLY.equals(emailDetails.getPendFrequency())) {
-				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
 
-				if (!recordDetails.isEmpty()) {
-					sendRecord(recordDetails.size(), Constants.MAIL_WEEKLY_PEND_SUBJECT,
-							emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
+				if (recordDetails != 0) {
+					sendRecord(recordDetails, Constants.MAIL_WEEKLY_PEND_SUBJECT, emailDetails.getPendEmailAddress(),
+							Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY, emailDetails.getPrimaryEmailAddress());
 
 				}
 			}
 		}
 	}
 
-	private void sendRecord(int count, String subject, String emailAddress, String recordType, String frequency)
-			throws Exception {
+	private void sendRecord(int count, String subject, String emailAddress, String recordType, String frequency,
+			String primaryEmailAddress) throws Exception {
 		String content = getHTMLMessage(count, recordType, frequency);
 		try {
 			sendMail(emailAddress, subject, content);
 		} catch (SendFailedException ex) {
+			try {
+				sendMail(primaryEmailAddress, "Invalid Email Adress for " + recordType + "for frequency " + frequency,
+						getHTMLMessageForInvalidEmail(recordType, frequency));
+			} catch (MessagingException me) {
+				me.getMessage();
+			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (MessagingException e1) {
@@ -161,4 +165,3 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 }
-

@@ -9,5 +9,5 @@ public interface EmailRepository {
 
 	List<EmailDetails> getEmailDetails(String frequency);
 
-	List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency);
+	Integer getRecordList(String providerTin, String recordType, String frequency);
 }

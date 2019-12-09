@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@Document(collection = "trackEmail")
+//@Document(collection = "trackEmail")
 @JsonInclude(Include.NON_NULL)
 public class EmailDetails {
 
@@ -20,6 +20,7 @@ public class EmailDetails {
 	private String pendFrequency;
 	private String reconEmailAddress;
 	private String pendEmailAddress;
+	private String primaryEmailAddress;
 
 	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert, Boolean pendAlert,
 			String reconFrequency, String pendFrequency, String reconEmailAddress, String pendEmailAddress) {
@@ -105,6 +106,16 @@ public class EmailDetails {
 
 	public void setPendEmailAddress(String pendEmailAddress) {
 		this.pendEmailAddress = pendEmailAddress;
+	}
+	
+	
+
+	public String getPrimaryEmailAddress() {
+		return primaryEmailAddress;
+	}
+
+	public void setPrimaryEmailAddress(String primaryEmailAddress) {
+		this.primaryEmailAddress = primaryEmailAddress;
 	}
 
 	public EmailDetails() {

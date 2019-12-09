@@ -31,10 +31,16 @@ public class LocalDate {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Calendar cal = Calendar.getInstance();
 		if (frequency.equals(Constants.FREQ_DAILY)) {
-			cal.add(Calendar.HOUR_OF_DAY, -26);
+		cal.add(Calendar.DATE, -1);
+		cal.add(Calendar.HOUR, 6);
+		cal.set(Calendar.MINUTE, 00);
+		cal.set(Calendar.SECOND, 00);
 		}
 		if (frequency.equals(Constants.FREQ_WEEKLY)) {
-		cal.add(Calendar.HOUR_OF_DAY, -170);
+		cal.add(Calendar.DATE, -7);
+		cal.add(Calendar.HOUR, 6);
+		cal.set(Calendar.MINUTE, 00);
+		cal.set(Calendar.SECOND, 00);
 		}
 
 		Date dailyDateTime = cal.getTime();
@@ -46,4 +52,15 @@ public class LocalDate {
 		}
 		return formatDate;
 	}
+	
+	public static Date getCurrentDate() {
+		Calendar cal =  Calendar.getInstance();
+		cal.set(Calendar.HOUR, 5);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		Date date =  cal.getTime();
+		return date;
+		
+	}
+
 }

@@ -44,7 +44,8 @@ public class EmailNotificationController {
 			response.setMessage("200 Success");
 			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println("Exception Occured:");
+			e.printStackTrace();
+//			System.out.println("Exception Occured:");
 			BaseResponse response = new BaseResponse();
 			response.setMessage("Internal server error");
 			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
