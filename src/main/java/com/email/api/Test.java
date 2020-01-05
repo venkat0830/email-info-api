@@ -1,63 +1,92 @@
-//package com.email.api;
-//
-//import java.text.ParseException;
-//import java.text.SimpleDateFormat;
-//import java.util.ArrayList;
-//import java.util.Calendar;
-//import java.util.Date;
-//import java.util.List;
-//
-//public class Test {
-//
-//
-//	private static final String DATE = "yyyy-MM-dd HH:mm:ss";
-//
-//	public static Date getLastUpdatedDate(int lastDate) {
-//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
-//		Calendar cal = Calendar.getInstance();
-////		cal.add(Calendar.DATE, -7);
-////		cal.add(Calendar.HOUR, -2);
-//		cal.add(Calendar.HOUR_OF_DAY, -170);
-//		Date dailyDateTime = cal.getTime();
-//		Date formatDate = new Date();
-//		try {
-//			formatDate = simpleDateFormat.parse(simpleDateFormat.format(dailyDateTime));
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-//		return formatDate;
-//	}
-//
-//	public static Date fromateDate(String lastDate) {
-//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
-//		Date formatDate = new Date();
-//		try {
-//			formatDate = simpleDateFormat.parse(simpleDateFormat.format(lastDate));
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-//		return formatDate;
-//	}
-//
-//	public static List<String> getDateList() {
-//		List<String> dateList = new ArrayList<>();
-//		dateList.add("2019-11-12 19:56:33");
-//		dateList.add("2019-11-18 9:03:33");
-//		dateList.add("2019-11-10 14:33:33");
-//		return dateList;
-//	}
-//
-//	public static void main(String[] args) throws ParseException {
-//		SimpleDateFormat objSDF = new SimpleDateFormat(DATE);
-//		Date yesterdayDate = getLastUpdatedDate(-1);
-//		List<String> dateList = getDateList();
-//		for (String string : dateList) {
-//			Date dbDate = objSDF.parse(string);
-//			if (yesterdayDate.before(dbDate)) {
-//				System.out.println("I>>>>" + string);
-//			}
-//		}
-//	}
-//
-//
-//}
+package com.email.api;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import com.email.api.utilities.Constants;
+
+public class Test {
+
+	private static final String DATE = "yyyy-MM-dd HH:mm:ss";
+
+	public static void main(String[] args) throws Exception {
+
+		/**********************************************************************/
+		////////////////////// For Previous Dates //////////////////////////
+		/***************************************************************************/
+
+		//
+		// TimeZone timeZone = TimeZone.getTimeZone("CST6CDT");
+		// Calendar cal = Calendar.getInstance(timeZone);
+		// SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE, Locale.US);
+		// simpleDateFormat.setTimeZone(timeZone);
+		//
+		// //cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		// cal.add(Calendar.DATE, -1);
+		// cal.add(Calendar.HOUR_OF_DAY, -(cal.get(Calendar.HOUR_OF_DAY)) +6);
+		// cal.add(Calendar.MINUTE, -(cal.get(Calendar.MINUTE)) + 00);
+		// cal.add(Calendar.SECOND, -(cal.get(Calendar.SECOND)) + 00);
+		// cal.setTimeZone(TimeZone.getTimeZone("CST6CDT"));
+		// Date date1 = cal.getTime();
+		//
+		//
+		// System.out.println("Previous Date====================>>>> : "
+		// +simpleDateFormat.format(date1));
+		/**********************************************************************/
+		/* ===========================For GMT and CST ========================== */
+		/***************************************************************************/
+		// Date date = new Date();
+		// DateFormat cstFormat = new SimpleDateFormat();
+		// DateFormat gmtFormat = new SimpleDateFormat();
+		// TimeZone gmtTime = TimeZone.getTimeZone("GMT");
+		// TimeZone cstTime = TimeZone.getTimeZone("CST6CDT");
+		//
+		// cstFormat.setTimeZone(gmtTime);
+		// gmtFormat.setTimeZone(cstTime);
+		// Date currentDate = cstFormat.parse(cstFormat.format(date));
+		// System.out.println("GMT Time=======================>>>>> : " +
+		// cstFormat.format(currentDate));//
+		// System.out.println("CST Time=======================>>>>> : " +
+		// gmtFormat.format(date));
+		//
+		/**********************************************************************/
+		////////////////////// For Current Dates //////////////////////////
+		/***************************************************************************/
+		// SimpleDateFormat s1 = new SimpleDateFormat(DATE);
+		// String dateInString = getCDT();
+		// Date date = new Date();
+		// date = s1.parse(dateInString);
+		// Calendar c2 = dateToCalendar(date);
+		// //c2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		// c2.set(Calendar.HOUR_OF_DAY, 5);
+		// c2.set(Calendar.MINUTE, 59);
+		// c2.set(Calendar.SECOND, 59);
+		// Date currentdate = c2.getTime();
+		// s1.setTimeZone(TimeZone.getTimeZone("CST"));
+		// System.out.println("Date Upto =========================>>>>> : " +
+		// s1.format(currentdate));
+		//////////////////////// Daily/////////////////////
+		//
+		TimeZone timeZone = TimeZone.getTimeZone("CST6CDT");
+		Calendar cal = Calendar.getInstance(timeZone);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE, Locale.US);
+		simpleDateFormat.setTimeZone(timeZone);
+		try {
+			//cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+			cal.set(Calendar.HOUR_OF_DAY, 5);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
+		} catch (Exception e) {
+			throw e;
+		}
+		Date currentDateTime = cal.getTime();
+		System.out.println("CurrentDate =====================>>> : " + simpleDateFormat.format(currentDateTime));
+
+	}
+
+}

@@ -1,11 +1,13 @@
 package com.email.api.service;
 
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
+import java.net.PasswordAuthentication;
 import java.util.List;
 
+import javax.mail.MailSessionDefinition;
 import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,23 +39,25 @@ public class EmailServiceImpl implements EmailService {
 		for (EmailDetails emailDetails : details) {
 			if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
 					&& Constants.FREQ_DAILY.equals(emailDetails.getReconFrequency())) {
-				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
 
-				if (recordDetails != 0) {
-					sendRecord(recordDetails, Constants.MAIL_DAILY_RECON_SUBJECT, emailDetails.getReconEmailAddress(),
-							Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY, emailDetails.getPrimaryEmailAddress());
+				if (!recordDetails.isEmpty()) {
+					sendRecord(recordDetails.size(), Constants.MAIL_DAILY_RECON_SUBJECT,
+							emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY,
+							emailDetails.getPrimaryEmailAddress());
 				}
 
 			}
 			if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
 					&& Constants.FREQ_DAILY.equals(emailDetails.getPendFrequency())) {
-				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
 
-				if (recordDetails != 0) {
-					sendRecord(recordDetails, Constants.MAIL_DAILY_PEND_SUBJECT, emailDetails.getPendEmailAddress(),
-							Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY, emailDetails.getPrimaryEmailAddress());
+				if (!recordDetails.isEmpty()) {
+					sendRecord(recordDetails.size(), Constants.MAIL_DAILY_PEND_SUBJECT,
+							emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY,
+							emailDetails.getPrimaryEmailAddress());
 				}
 				break;
 
@@ -68,51 +72,57 @@ public class EmailServiceImpl implements EmailService {
 			if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
 
 					&& Constants.FREQ_WEEKLY.equals(emailDetails.getReconFrequency())) {
-				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
 
-				if (recordDetails != 0) {
-					sendRecord(recordDetails, Constants.MAIL_WEEKLY_RECON_SUBJECT, emailDetails.getReconEmailAddress(),
-							Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY, emailDetails.getPrimaryEmailAddress());
+				if (!recordDetails.isEmpty()) {
+					sendRecord(recordDetails.size(), Constants.MAIL_WEEKLY_RECON_SUBJECT,
+							emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY,
+							emailDetails.getPrimaryEmailAddress());
 
 				}
 			}
 			if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
 					&& Constants.FREQ_WEEKLY.equals(emailDetails.getPendFrequency())) {
-				int recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
 
-				if (recordDetails != 0) {
-					sendRecord(recordDetails, Constants.MAIL_WEEKLY_PEND_SUBJECT, emailDetails.getPendEmailAddress(),
-							Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY, emailDetails.getPrimaryEmailAddress());
+				if (!recordDetails.isEmpty()) {
+					sendRecord(recordDetails.size(), Constants.MAIL_WEEKLY_PEND_SUBJECT,
+							emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY,
+							emailDetails.getPrimaryEmailAddress());
 
 				}
 			}
 		}
 	}
 
-	private void sendRecord(int count, String subject, String emailAddress, String recordType, String frequency,
-			String primaryEmailAddress) throws Exception {
+	private void sendRecord(int count, String subject, String emailAddress, String recordType, String frequency, String primaryEmailAddress)
+			throws Exception {
 		String content = getHTMLMessage(count, recordType, frequency);
 		try {
 			sendMail(emailAddress, subject, content);
-		} catch (SendFailedException ex) {
-			try {
-				sendMail(primaryEmailAddress, "Invalid Email Adress for " + recordType + "for frequency " + frequency,
-						getHTMLMessageForInvalidEmail(recordType, frequency));
-			} catch (MessagingException me) {
-				me.getMessage();
-			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (MessagingException e1) {
+		} catch (MessagingException ex) {
+			StringBuffer exception = new StringBuffer(ex.getMessage().toString());
 
-			System.out.println(" Unable to Connect Mail server");
-			throw new Exception();
+			if (exception.indexOf("ConnectException") >= 0) {
+				System.out.println(" Unable to Connect Mail server");
+				throw new Exception();
+			} else if (exception.indexOf("AddressException") >= 0) {
+				try {
+					sendMail(primaryEmailAddress,
+							"Invalid Email address for " + recordType + " for Frequency " + frequency,
+							getHTMLMessageForInvalidEmail(recordType, frequency));
+				} catch (MessagingException e1) {
+					System.out.println("Invalid Admin Email address");
+				}
+			} else {
+				System.out.println("Email has not been sent.: " + exception.toString());
+			
+			}
 
 		}
 	}
-
 	private String getHTMLMessageForInvalidEmail(String recordType, String frequency) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<!DOCTYPE html><html>");
