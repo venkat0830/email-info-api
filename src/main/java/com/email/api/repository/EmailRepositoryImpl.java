@@ -19,12 +19,13 @@ public class EmailRepositoryImpl implements EmailRepository {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
-	
+
 	@Override
 	public List<EmailDetails> getEmailDetails(String frequency) {
 		Query query = new Query();
 		Criteria criteria = new Criteria();
-		criteria.orOperator(new Criteria("reconFrequency").is(frequency), new Criteria("pendFrequency").is(frequency), new Criteria("smartEditsFrequency").is(frequency));
+		criteria.orOperator(new Criteria("reconFrequency").is(frequency), new Criteria("pendFrequency").is(frequency),
+				new Criteria("smartEditsFrequency").is(frequency));
 		query.addCriteria(criteria);
 		System.out.println("Query: " + query);
 		return mongoTemplate.find(query, EmailDetails.class);
@@ -35,11 +36,11 @@ public class EmailRepositoryImpl implements EmailRepository {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("providerDetails.providerTin").is(providerTin));
 		query.addCriteria(Criteria.where("recordInfo.recordType").is(recordType));
-		System.out.println("Query : " +query);
+		System.out.println("Query : " + query);
 		List<RecordDetails> resultsRecords = mongoTemplate.find(query, RecordDetails.class);
 		return getDateFilteredRecords(resultsRecords, frequency);
 	}
-	
+
 	private List<RecordDetails> getDateFilteredRecords(List<RecordDetails> resultsRecords, String frequency) {
 		List<RecordDetails> fillterRecords = new ArrayList<>();
 		Date recoredLastUpdateDate = LocalDate.getLastUpdatedDate(frequency);
@@ -54,7 +55,5 @@ public class EmailRepositoryImpl implements EmailRepository {
 		}
 		return fillterRecords;
 	}
-	
-	
 
 }

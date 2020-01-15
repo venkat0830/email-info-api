@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.email.api.model.Notification;
 import com.email.api.model.SmartEdits;
 import com.email.api.utilities.LocalDate;
 
+@Service
 public class SmartEditsService {
 
 	public List<Notification> getSmartEditsNotificationList(String tinId) {
@@ -28,12 +30,11 @@ public class SmartEditsService {
 			return notifications;
 		}
 
-		Date dailyDate = LocalDate.getLastUpdatedDate(2);
-		Date currentDate = new Date();
+		Date dailyDate = LocalDate.getLastUpdatedDate(1);
 
 		for (Notification notification : notificatonList) {
 			Date aceExpirationDate = LocalDate.getConvertedDate(notification.getAceExpirationDate());
-			if (dailyDate.before(aceExpirationDate) && currentDate.after(aceExpirationDate)) {
+			if (dailyDate.before(aceExpirationDate)) {
 				notifications.add(notification);
 			}
 		}
