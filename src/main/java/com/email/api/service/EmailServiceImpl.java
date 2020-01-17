@@ -55,6 +55,7 @@ public class EmailServiceImpl implements EmailService {
 						sendRecord(reconDetails.size(), pendDetails.size(), Constants.MAIL_DAILY_SUBJECT,
 								emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY,
 								emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(), true);
+						System.out.println("SentEmail For both the record types recon adn Pend:" +emailDetails.getProviderTin());
 					}
 				}
 			} else {
@@ -68,6 +69,7 @@ public class EmailServiceImpl implements EmailService {
 						sendRecord(recordDetails.size(), 0, Constants.MAIL_DAILY_RECON_SUBJECT,
 								emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY,
 								emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(), false);
+						System.out.println("SentEmail For Recon:" +emailDetails.getProviderTin());
 					}
 
 				}
@@ -80,6 +82,7 @@ public class EmailServiceImpl implements EmailService {
 						sendRecord(0, recordDetails.size(), Constants.MAIL_DAILY_PEND_SUBJECT,
 								emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY,
 								emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(), false);
+						System.out.println("SentEmail For Pend:" +emailDetails.getProviderTin());
 					}
 
 				}
