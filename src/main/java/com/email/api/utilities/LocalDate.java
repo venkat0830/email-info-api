@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers.CalendarDeserializer;
+
 public class LocalDate {
 
 	private static final String DATE = "yyyy-MM-dd HH:mm:ss";
@@ -28,6 +30,15 @@ public class LocalDate {
 		return formatDate;
 	}
 
+	public static boolean isMondayToday() {
+		Calendar cal = Calendar.getInstance();
+		if (Calendar.MONDAY == cal.get(Calendar.DAY_OF_WEEK)) {
+			return true;
+		}
+		return false;
+
+	}
+
 	public static Date getLastUpdatedDate(String frequency) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Calendar cal = Calendar.getInstance();
@@ -39,6 +50,7 @@ public class LocalDate {
 
 		}
 		if (frequency.equals(Constants.FREQ_WEEKLY)) {
+			cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 			cal.add(Calendar.DATE, -7);
 			cal.add(Calendar.HOUR_OF_DAY, -(cal.get(Calendar.HOUR_OF_DAY) - 5));
 			cal.set(Calendar.MINUTE, -(cal.get(Calendar.MINUTE) - 59));
@@ -95,7 +107,7 @@ public class LocalDate {
 		cal.add(Calendar.DATE, -lastDate);
 		return cal.getTime();
 	}
-	
+
 	public static Date getConvertedDate(String dateStr) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
 		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");

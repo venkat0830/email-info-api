@@ -18,22 +18,22 @@ public class EmailNotificationController {
 	@Autowired
 	EmailService emailService;
 
-	@RequestMapping(value = "/retrieveWeeklyEmail", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<BaseResponse> getWeeklyEmailDetails() {
-		try {
-
-			emailService.sendWeeklyEmail();
-			BaseResponse response = new BaseResponse();
-			response.setMessage("200 Success");
-			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
-		} catch (Exception e) {
-			System.out.println("Exception Occured:");
-			BaseResponse response = new BaseResponse();
-			response.setMessage("Internal server error");
-			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-	}
+//	@RequestMapping(value = "/retrieveWeeklyEmail", method = RequestMethod.GET, produces = "application/json")
+//	public ResponseEntity<BaseResponse> getWeeklyEmailDetails() {
+//		try {
+//
+//			emailService.sendWeeklyEmail();
+//			BaseResponse response = new BaseResponse();
+//			response.setMessage("200 Success");
+//			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
+//		} catch (Exception e) {
+//			System.out.println("Exception Occured:");
+//			BaseResponse response = new BaseResponse();
+//			response.setMessage("Internal server error");
+//			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//
+//	}
 
 	@RequestMapping(value = "/retrieveDailyEmail", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<BaseResponse> getDailyEmailDetails() {
@@ -45,7 +45,7 @@ public class EmailNotificationController {
 			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
-//			System.out.println("Exception Occured:");
+		System.out.println("Exception Occured:");
 			BaseResponse response = new BaseResponse();
 			response.setMessage("Internal server error");
 			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
