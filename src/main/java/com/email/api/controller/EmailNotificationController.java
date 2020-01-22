@@ -41,13 +41,13 @@ public class EmailNotificationController {
 	@RequestMapping(value = "/retrieveDailyEmail", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<BaseResponse> getDailyEmailDetails() {
 		try {
-			 ResponseEntity<Object> boTableResp = getBOTable();
-			 BoTable boTable = new BoTable();
-			 if (null != boTableResp && boTableResp.getStatusCode() == HttpStatus.OK
-			 && boTableResp.getBody() instanceof Response) {
-			 boTable = ((Response) boTableResp.getBody()).getBoTable();
-			 }
-			emailService.sendDailyEmail(boTable);
+//			 ResponseEntity<Object> boTableResp = getBOTable();
+//			 BoTable boTable = new BoTable();
+//			 if (null != boTableResp && boTableResp.getStatusCode() == HttpStatus.OK
+//			 && boTableResp.getBody() instanceof Response) {
+//			 boTable = ((Response) boTableResp.getBody()).getBoTable();
+//			 }
+			emailService.sendDailyEmail();
 			BaseResponse response = new BaseResponse();
 			response.setMessage("200 Success");
 			return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
@@ -61,24 +61,24 @@ public class EmailNotificationController {
 
 	}
 
-	@RequestMapping(value = "/trackItBO", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<Object> getBOTable() {
-		try {
-			RestTemplate restTemplate = new RestTemplate();
-			BoTable botable = restTemplate.getForObject(url, BoTable.class);
-			Response boRes = new Response();
-			if (null != botable) {
-				boRes.setStatus("Success");
-				boRes.setBoTable(botable);
-			}
-			return new ResponseEntity<Object>(boRes, HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Exception Occured:");
-			BaseResponse response = new BaseResponse();
-			response.setMessage("Internal server error");
-			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-	}
+//	@RequestMapping(value = "/trackItBO", method = RequestMethod.GET, produces = "application/json")
+//	public ResponseEntity<Object> getBOTable() {
+//		try {
+//			RestTemplate restTemplate = new RestTemplate();
+//			BoTable botable = restTemplate.getForObject(url, BoTable.class);
+//			Response boRes = new Response();
+//			if (null != botable) {
+//				boRes.setStatus("Success");
+//				boRes.setBoTable(botable);
+//			}
+//			return new ResponseEntity<Object>(boRes, HttpStatus.OK);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.out.println("Exception Occured:");
+//			BaseResponse response = new BaseResponse();
+//			response.setMessage("Internal server error");
+//			return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//
+//	}
 }

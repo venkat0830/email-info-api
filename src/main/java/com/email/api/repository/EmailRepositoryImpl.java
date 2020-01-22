@@ -24,9 +24,11 @@ public class EmailRepositoryImpl implements EmailRepository {
 	public List<EmailDetails> getEmailDetails(String frequency) {
 		Query query = new Query();
 		Criteria criteria = new Criteria();
-		criteria.orOperator(new Criteria("reconFrequency").is(frequency), new Criteria("pendFrequency").is(frequency),
-				new Criteria("smartEditsFrequency").is(frequency));
-		query.addCriteria(criteria);
+		if (frequency != null) {
+			criteria.orOperator(new Criteria("reconFrequency").is(frequency),
+					new Criteria("pendFrequency").is(frequency), new Criteria("smartEditsFrequency").is(frequency));
+			query.addCriteria(criteria);
+		}
 		System.out.println("Query: " + query);
 		return mongoTemplate.find(query, EmailDetails.class);
 	}
