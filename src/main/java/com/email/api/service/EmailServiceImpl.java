@@ -1,13 +1,9 @@
 package com.email.api.service;
 
 import java.io.UnsupportedEncodingException;
-import java.net.PasswordAuthentication;
 import java.util.List;
 
-import javax.mail.MailSessionDefinition;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +11,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.email.api.model.BoTable;
 import com.email.api.model.EmailDetails;
-import com.email.api.model.Notification;
 import com.email.api.model.RecordDetails;
 import com.email.api.repository.EmailRepository;
 import com.email.api.utilities.Constants;
@@ -39,11 +35,12 @@ public class EmailServiceImpl implements EmailService {
 
 	// @Scheduled(cron = " 0 0 8 ? * MON-FRI")
 	@Override
-	public void sendDailyEmail() throws Exception {
+	public void sendDailyEmail(BoTable boTable) throws Exception {
 		List<EmailDetails> details = emailRepository.getEmailDetails(Constants.FREQ_DAILY);
 		for (EmailDetails emailDetails : details) {
-			if (!isSameEmailAddress(emailDetails, Constants.FREQ_DAILY)) {
-				if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
+			if (!isSameEmailAddress(emailDetails, Constants.FREQ_DAILY, boTable)) {
+				if (!Constants.FALSE.equals(boTable.getRecon()) && emailDetails.getReconAlert() != null
+						&& emailDetails.getReconAlert()
 						&& Constants.FREQ_DAILY.equals(emailDetails.getReconFrequency())) {
 					List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 							Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
@@ -56,7 +53,8 @@ public class EmailServiceImpl implements EmailService {
 					}
 
 				}
-				if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
+				if (!Constants.FALSE.equals(boTable.getPend()) && emailDetails.getPendAlert() != null
+						&& emailDetails.getPendAlert()
 						&& Constants.FREQ_DAILY.equals(emailDetails.getPendFrequency())) {
 					List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 							Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
@@ -126,7 +124,12 @@ public class EmailServiceImpl implements EmailService {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<!DOCTYPE html><html>");
 		stringBuilder.append("<head></head><body> <p>Hello  ");
-		stringBuilder.append(name);
+		if (null != name) {
+			stringBuilder.append(name);
+		} else {
+			stringBuilder.append("Care Provider");
+		}
+
 		stringBuilder.append(",</p> <p> You have ");
 		if (!isSameEmailAddress) {
 			if (Constants.RECORD_TYPE_RECON.equals(recordType) && Constants.FREQ_DAILY.equals(frequency)
@@ -189,16 +192,19 @@ public class EmailServiceImpl implements EmailService {
 		System.out.println("sent Email: " + to);
 	}
 
-	private boolean isSameEmailAddress(EmailDetails emailDetails, String frequency) throws Exception {
+	private boolean isSameEmailAddress(EmailDetails emailDetails, String frequency, BoTable boTable) throws Exception {
+		if (Constants.FALSE.equals(boTable.getPend()) && Constants.FALSE.equals(boTable.getRecon())) {
+			return false;
+		}
 		if ((null != emailDetails.getReconAlert() && emailDetails.getReconAlert())
 				&& (null != emailDetails.getPendAlert() && emailDetails.getPendAlert())) {
-			if (frequency.equals(emailDetails.getReconFrequency()) && frequency.equals(emailDetails.getPendFrequency())
-					&& (emailDetails.getReconEmailAddress().equals(emailDetails.getPendEmailAddress()))) {
+			if (emailDetails.getReconEmailAddress().equals(emailDetails.getPendEmailAddress())) {
 
 				List<RecordDetails> reconDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_RECON, frequency);
 				List<RecordDetails> pendDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_PEND, frequency);
+
 				if (!reconDetails.isEmpty() || !pendDetails.isEmpty()) {
 					sendRecord(reconDetails.size(), pendDetails.size(), Constants.MAIL_DAILY_SUBJECT,
 							emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON, frequency,

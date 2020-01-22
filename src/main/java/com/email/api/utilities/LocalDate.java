@@ -32,6 +32,7 @@ public class LocalDate {
 
 	public static boolean isMondayToday() {
 		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 		if (Calendar.MONDAY == cal.get(Calendar.DAY_OF_WEEK)) {
 			return true;
 		}
