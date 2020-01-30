@@ -32,8 +32,8 @@ public class LocalDate {
 
 	public static boolean isMondayToday() {
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-		if (Calendar.MONDAY == cal.get(Calendar.DAY_OF_WEEK)) {
+		//cal.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+		if (Calendar.WEDNESDAY == cal.get(Calendar.DAY_OF_WEEK)) {
 			return true;
 		}
 		return false;
@@ -51,7 +51,7 @@ public class LocalDate {
 
 		}
 		if (frequency.equals(Constants.FREQ_WEEKLY)) {
-			cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+			cal.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
 			cal.add(Calendar.DATE, -7);
 			cal.add(Calendar.HOUR_OF_DAY, -(cal.get(Calendar.HOUR_OF_DAY) - 5));
 			cal.set(Calendar.MINUTE, -(cal.get(Calendar.MINUTE) - 59));
@@ -72,9 +72,9 @@ public class LocalDate {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		try {
-			cal.set(Calendar.HOUR_OF_DAY, 5);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.HOUR_OF_DAY, 6);
+			cal.set(Calendar.MINUTE, 00);
+			cal.set(Calendar.SECOND, 00);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -87,10 +87,10 @@ public class LocalDate {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		try {
-			cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-			cal.set(Calendar.HOUR_OF_DAY, 5);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
+			cal.set(Calendar.HOUR_OF_DAY, 6);
+			cal.set(Calendar.MINUTE, 00);
+			cal.set(Calendar.SECOND, 00);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -99,25 +99,25 @@ public class LocalDate {
 
 	}
 
-	public static Date getLastUpdatedDate(int lastDate) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
-		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");
-		simpleDateFormat.setTimeZone(etTimeZone);
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeZone(etTimeZone);
-		cal.add(Calendar.DATE, -lastDate);
-		return cal.getTime();
-	}
-
-	public static Date getConvertedDate(String dateStr) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
-		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");
-		simpleDateFormat.setTimeZone(etTimeZone);
-		Date date = new Date();
-		try {
-			date = simpleDateFormat.parse(dateStr);
-		} catch (ParseException e) {
-		}
-		return date;
-	}
+//	public static Date getLastUpdatedDate(int lastDate) {
+//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
+//		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");
+//		simpleDateFormat.setTimeZone(etTimeZone);
+//		Calendar cal = Calendar.getInstance();
+//		cal.setTimeZone(etTimeZone);
+//		cal.add(Calendar.DATE, -lastDate);
+//		return cal.getTime();
+//	}
+//
+//	public static Date getConvertedDate(String dateStr) {
+//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
+//		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");
+//		simpleDateFormat.setTimeZone(etTimeZone);
+//		Date date = new Date();
+//		try {
+//			date = simpleDateFormat.parse(dateStr);
+//		} catch (ParseException e) {
+//		}
+//		return date;
+//	}
 }
