@@ -10,4 +10,6 @@ public interface EmailRepository {
 	List<EmailDetails> getEmailDetails(String frequency);
 
 	List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency);
+	
+	EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID);
 }

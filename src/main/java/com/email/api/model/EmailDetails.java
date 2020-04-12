@@ -26,8 +26,10 @@ public class EmailDetails {
 	private String primaryEmailAddress;
 	private String providerName;
 
-	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert, Boolean pendAlert, Boolean smartEditsAlert,
-			String reconFrequency, String pendFrequency, String smartEditsFrequency, String reconEmailAddress, String pendEmailAddress, String smartEditsEmailAddress, String providerName) {
+	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert,
+			Boolean pendAlert, Boolean smartEditsAlert, String reconFrequency, String pendFrequency,
+			String smartEditsFrequency, String reconEmailAddress, String pendEmailAddress,
+			String smartEditsEmailAddress, String providerName) {
 		super();
 		this.id = id;
 		this.corporateTaxID = corporateTaxID;
@@ -51,6 +53,8 @@ public class EmailDetails {
 	public void setId(String id) {
 		this.id = id;
 	}
+
+	
 
 	public String getCorporateTaxID() {
 		return corporateTaxID;
@@ -115,8 +119,6 @@ public class EmailDetails {
 	public void setPendEmailAddress(String pendEmailAddress) {
 		this.pendEmailAddress = pendEmailAddress;
 	}
-	
-	
 
 	public String getPrimaryEmailAddress() {
 		return primaryEmailAddress;
@@ -125,8 +127,6 @@ public class EmailDetails {
 	public void setPrimaryEmailAddress(String primaryEmailAddress) {
 		this.primaryEmailAddress = primaryEmailAddress;
 	}
-	
-	
 
 	public Boolean getSmartEditsAlert() {
 		return smartEditsAlert;

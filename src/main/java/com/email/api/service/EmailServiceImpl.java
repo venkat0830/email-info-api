@@ -35,34 +35,34 @@ public class EmailServiceImpl implements EmailService {
 
 	// @Scheduled(cron = " 0 0 8 ? * MON-FRI")
 	@Override
-	public void sendDailyEmail() throws Exception {
+	public void sendDailyEmail(EmailDetails emailDetails) throws Exception {
 		List<EmailDetails> details = new ArrayList<>();
 		if (LocalDate.isMondayToday()) {
 			details = emailRepository.getEmailDetails(null);
 		} else {
 			details = emailRepository.getEmailDetails(Constants.FREQ_DAILY);
 		}
-		for (EmailDetails emailDetails : details) {
-			if (!isSameEmailAddress(emailDetails, Constants.FREQ_DAILY)) {
-				if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
-						&& Constants.FREQ_DAILY.equals(emailDetails.getReconFrequency())) {
-					sendEmailForRecon(emailDetails, Constants.FREQ_DAILY, Constants.MAIL_DAILY_RECON_SUBJECT);
+		for (EmailDetails emailDetails2 : details) {
+			if (!isSameEmailAddress(emailDetails2, Constants.FREQ_DAILY)) {
+				if (emailDetails2.getReconAlert() != null && emailDetails2.getReconAlert()
+						&& Constants.FREQ_DAILY.equals(emailDetails2.getReconFrequency())) {
+					sendEmailForRecon(emailDetails2, Constants.FREQ_DAILY, Constants.MAIL_DAILY_RECON_SUBJECT);
 				}
-				if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
-						&& Constants.FREQ_DAILY.equals(emailDetails.getPendFrequency())) {
-					sendEmailForPend(emailDetails, Constants.FREQ_DAILY, Constants.MAIL_DAILY_PEND_SUBJECT);
+				if (emailDetails2.getPendAlert() != null && emailDetails2.getPendAlert()
+						&& Constants.FREQ_DAILY.equals(emailDetails2.getPendFrequency())) {
+					sendEmailForPend(emailDetails2, Constants.FREQ_DAILY, Constants.MAIL_DAILY_PEND_SUBJECT);
 
 				}
 
 				if (LocalDate.isMondayToday()) {
-					if (!isSameEmailAddress(emailDetails, Constants.FREQ_WEEKLY)) {
-						if (null != emailDetails.getReconAlert() && emailDetails.getReconAlert()
-								&& Constants.FREQ_WEEKLY.equals(emailDetails.getReconFrequency())) {
-							sendEmailForRecon(emailDetails, Constants.FREQ_WEEKLY, Constants.MAIL_WEEKLY_RECON_SUBJECT);
+					if (!isSameEmailAddress(emailDetails2, Constants.FREQ_WEEKLY)) {
+						if (null != emailDetails2.getReconAlert() && emailDetails2.getReconAlert()
+								&& Constants.FREQ_WEEKLY.equals(emailDetails2.getReconFrequency())) {
+							sendEmailForRecon(emailDetails2, Constants.FREQ_WEEKLY, Constants.MAIL_WEEKLY_RECON_SUBJECT);
 						}
-						if (null != emailDetails.getPendAlert() && emailDetails.getPendAlert()
-								&& Constants.FREQ_WEEKLY.endsWith(emailDetails.getPendFrequency())) {
-							sendEmailForPend(emailDetails, Constants.FREQ_WEEKLY, Constants.MAIL_WEEKLY_PEND_SUBJECT);
+						if (null != emailDetails2.getPendAlert() && emailDetails2.getPendAlert()
+								&& Constants.FREQ_WEEKLY.endsWith(emailDetails2.getPendFrequency())) {
+							sendEmailForPend(emailDetails2, Constants.FREQ_WEEKLY, Constants.MAIL_WEEKLY_PEND_SUBJECT);
 						}
 					}
 				}
@@ -263,5 +263,11 @@ public class EmailServiceImpl implements EmailService {
 					frequency, emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(), false);
 			System.out.println("SentEmail For Pend:" + emailDetails.getProviderTin());
 		}
+	}
+
+	@Override
+	public EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID) {
+		// TODO Auto-generated method stub
+		return emailRepository.getProviderDetails(corporateTaxID, providerTin, uuID);
 	}
 }

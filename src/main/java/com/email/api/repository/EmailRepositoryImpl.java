@@ -67,6 +67,17 @@ public class EmailRepositoryImpl implements EmailRepository {
 		return fillterRecords;
 	}
 
+	@Override
+	public EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("corporateTaxID").is(corporateTaxID));
+		query.addCriteria(Criteria.where("providerTin").is(providerTin));
+		query.addCriteria(Criteria.where("uuID").is(uuID));
+		System.out.println("Query : " + query);
+		List<EmailDetails> emailDetails = mongoTemplate.find(query, EmailDetails.class);
+		return emailDetails.get(0);
+	}
+
 //	public Integer getRecordDetails(String providerTin, String recordType, String frequency) {
 //		DBCollection recordsList = mongoTemplate.getCollection("recordCollection");
 //		if (recordType.equalsIgnoreCase(Constants.RECORD_TYPE_RECON)) {
