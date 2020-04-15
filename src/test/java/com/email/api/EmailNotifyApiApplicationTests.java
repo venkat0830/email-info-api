@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EmailNotifyApiApplicationTests {
-
+public class EmailNotifyApiApplicationTests {
 	@Test
-	void contextLoads() {
+	void context() {
+
 	}
 
 }
