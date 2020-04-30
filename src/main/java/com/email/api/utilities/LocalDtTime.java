@@ -59,6 +59,7 @@ public class LocalDtTime {
 		Calendar cal = Calendar.getInstance(cstTimeZone);
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE, Locale.US);
 		try {
+			simpleDateFormat.setTimeZone(cstTimeZone);
 			cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 			cal.set(Calendar.HOUR_OF_DAY, 5);
 			cal.set(Calendar.MINUTE, 59);
