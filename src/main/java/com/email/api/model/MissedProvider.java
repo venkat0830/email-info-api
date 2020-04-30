@@ -5,9 +5,9 @@ public class MissedProvider {
 	private String corporateTaxID;
 	private String providerTin;
 	private String uuID;
-	private String weeklyUpdateMissed;
-	private String dailyUpdateMissed;
-	private String hpcUpdateMissed;
+	private Boolean weeklyUpdateMissed;
+	private Boolean dailyUpdateMissed;
+	private Boolean hpcUpdateMissed;
 
 	public String getCorporateTaxID() {
 		return corporateTaxID;
@@ -27,22 +27,22 @@ public class MissedProvider {
 	public void setUuID(String uuID) {
 		this.uuID = uuID;
 	}
-	public String getWeeklyUpdateMissed() {
+	public Boolean getWeeklyUpdateMissed() {
 		return weeklyUpdateMissed;
 	}
-	public void setWeeklyUpdateMissed(String weeklyUpdateMissed) {
+	public void setWeeklyUpdateMissed(Boolean weeklyUpdateMissed) {
 		this.weeklyUpdateMissed = weeklyUpdateMissed;
 	}
-	public String getDailyUpdateMissed() {
+	public Boolean getDailyUpdateMissed() {
 		return dailyUpdateMissed;
 	}
-	public void setDailyUpdateMissed(String dailyUpdateMissed) {
+	public void setDailyUpdateMissed(Boolean dailyUpdateMissed) {
 		this.dailyUpdateMissed = dailyUpdateMissed;
 	}
-	public String getHpcUpdateMissed() {
+	public Boolean getHpcUpdateMissed() {
 		return hpcUpdateMissed;
 	}
-	public void setHpcUpdateMissed(String hpcUpdateMissed) {
+	public void setHpcUpdateMissed(Boolean hpcUpdateMissed) {
 		this.hpcUpdateMissed = hpcUpdateMissed;
 	}
 	

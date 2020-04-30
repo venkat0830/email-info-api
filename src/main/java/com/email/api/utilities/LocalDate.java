@@ -98,26 +98,4 @@ public class LocalDate {
 		return simpleDateFormat.format(currentDateTime);
 
 	}
-
-//	public static Date getLastUpdatedDate(int lastDate) {
-//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
-//		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");
-//		simpleDateFormat.setTimeZone(etTimeZone);
-//		Calendar cal = Calendar.getInstance();
-//		cal.setTimeZone(etTimeZone);
-//		cal.add(Calendar.DATE, -lastDate);
-//		return cal.getTime();
-//	}
-//
-//	public static Date getConvertedDate(String dateStr) {
-//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(SMARTEDIT_DATE);
-//		TimeZone etTimeZone = TimeZone.getTimeZone("America/Chicago");
-//		simpleDateFormat.setTimeZone(etTimeZone);
-//		Date date = new Date();
-//		try {
-//			date = simpleDateFormat.parse(dateStr);
-//		} catch (ParseException e) {
-//		}
-//		return date;
-//	}
 }

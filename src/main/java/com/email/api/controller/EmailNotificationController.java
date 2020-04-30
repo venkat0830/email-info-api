@@ -1,3 +1,4 @@
+  
 package com.email.api.controller;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.email.api.model.BoTable;
 import com.email.api.model.EmailDetails;
 import com.email.api.model.MissedProvider;
 import com.email.api.model.MissedProviderEmailList;
@@ -75,6 +77,8 @@ public class EmailNotificationController {
 	@RequestMapping(value = "/api/provider/email", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<BaseResponse> sendMissedProviderEmails(
 			@RequestBody MissedProviderEmailList missedProviderEmailList) {
+		BoTable boTable = new BoTable();
+		boTable.setRecon("FALSE");
 		try {
 			if (!CollectionUtils.isEmpty(missedProviderEmailList.getMissedProviderEmailList())) {
 				List<String> fault = parameterValidation.validationRequestParam(missedProviderEmailList);
@@ -87,7 +91,10 @@ public class EmailNotificationController {
 			for (MissedProvider missedProvider : missedProviderEmailList.getMissedProviderEmailList()) {
 				EmailDetails emailDetails = emailService.getProviderDetails(missedProvider.getCorporateTaxID(),
 						missedProvider.getProviderTin(), missedProvider.getUuID());
-				if (missedProvider.getDailyUpdateMissed() != null) {
+				if (missedProvider.getDailyUpdateMissed() != null && missedProvider.getDailyUpdateMissed() && boTable.getRecon().equalsIgnoreCase("TRUE") ) {
+					emailService.sendDailyEmail(emailDetails);
+				}
+				if(missedProvider.getWeeklyUpdateMissed() !=null && missedProvider.getWeeklyUpdateMissed() && boTable.getRecon().equalsIgnoreCase("TRUE")) {
 					emailService.sendDailyEmail(emailDetails);
 				}
 			}

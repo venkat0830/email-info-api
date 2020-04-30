@@ -70,48 +70,6 @@ public class EmailServiceImpl implements EmailService {
 		}
 	}
 
-	// @Override
-	// public void sendWeeklyEmail() throws Exception {
-	// List<EmailDetails> details =
-	// emailRepository.getEmailDetails(Constants.FREQ_WEEKLY);
-	// for (EmailDetails emailDetails : details) {
-	// if (!isSameEmailAddress(emailDetails, Constants.FREQ_WEEKLY)) {
-	// if (emailDetails.getReconAlert() != null && emailDetails.getReconAlert()
-	//
-	// && Constants.FREQ_WEEKLY.equals(emailDetails.getReconFrequency())) {
-	// List<RecordDetails> recordDetails =
-	// emailRepository.getRecordList(emailDetails.getProviderTin(),
-	// Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
-	//
-	// if (!recordDetails.isEmpty()) {
-	// sendRecord(recordDetails.size(), 0, Constants.MAIL_WEEKLY_RECON_SUBJECT,
-	// emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON,
-	// Constants.FREQ_WEEKLY,
-	// emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(),
-	// false);
-	//
-	// }
-	// }
-	// if (emailDetails.getPendAlert() != null && emailDetails.getPendAlert()
-	// && Constants.FREQ_WEEKLY.equals(emailDetails.getPendFrequency())) {
-	// List<RecordDetails> recordDetails =
-	// emailRepository.getRecordList(emailDetails.getProviderTin(),
-	// Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
-	//
-	// if (!recordDetails.isEmpty()) {
-	// sendRecord(0, recordDetails.size(), Constants.MAIL_WEEKLY_PEND_SUBJECT,
-	// emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND,
-	// Constants.FREQ_WEEKLY,
-	// emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(),
-	// false);
-	//
-	// }
-	// }
-	//
-	// }
-	// }
-	// }
-
 	private void sendRecord(int reconCount, int pendCount, String subject, String emailAddress, String recordType,
 			String reconFrequency, String pendFrequency, String name, boolean isSameEmailAddress) throws Exception {
 		String content = getHTMLMessage(reconCount, pendCount, recordType, reconFrequency, pendFrequency, name,
@@ -133,38 +91,6 @@ public class EmailServiceImpl implements EmailService {
 		} else {
 			stringBuilder.append("Care Provider");
 		}
-		// if (!isSameEmailAddress) {
-		// if (Constants.RECORD_TYPE_RECON.equals(recordType) &&
-		// Constants.FREQ_DAILY.equals(frequency)
-		// && reconCount > 0) {
-		// stringBuilder.append(",</p> <p> You have ");
-		// stringBuilder.append(reconCount);
-		// stringBuilder.append(" Reconsideration tickets that have been update in last
-		// 24hrs,");
-		// }
-		// if (Constants.RECORD_TYPE_PEND.equals(recordType) &&
-		// Constants.FREQ_DAILY.equals(frequency)
-		// && pendCount > 0) {
-		// stringBuilder.append(",</p> <p> You have ");
-		// stringBuilder.append(pendCount);
-		// stringBuilder.append(" Pended tickets that have been update in last 24hrs,");
-		// }
-		// if (Constants.RECORD_TYPE_RECON.equals(recordType) &&
-		// Constants.FREQ_WEEKLY.equals(frequency)
-		// && reconCount > 0) {
-		// stringBuilder.append(",</p> <p> You have ");
-		// stringBuilder.append(reconCount);
-		// stringBuilder.append(" Reconsideration tickets that have been update in last
-		// week,");
-		// }
-		// if (Constants.RECORD_TYPE_PEND.equals(recordType) &&
-		// Constants.FREQ_WEEKLY.equals(frequency)
-		// && pendCount > 0) {
-		// stringBuilder.append(",</p> <p> You have ");
-		// stringBuilder.append(pendCount);
-		// stringBuilder.append(" Pended tickets that have been update in last week,");
-		// }
-		// } else {
 		if (reconCount > 0 && Constants.FREQ_DAILY.equals(reconFrequency)) {
 			stringBuilder.append(",</p> <p> You have ");
 			stringBuilder.append(reconCount);
