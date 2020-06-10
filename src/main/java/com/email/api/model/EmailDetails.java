@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@Document(collection = "trackEmail")
+@Document(collection = "trackitEmailReg")
 @JsonInclude(Include.NON_NULL)
 public class EmailDetails {
 
@@ -17,19 +17,24 @@ public class EmailDetails {
 	private Boolean reconAlert;
 	private Boolean pendAlert;
 	private Boolean smartEditsAlert;
+	private Boolean hpcEditsAlert;
+	private Boolean appealsAlert;
+	private Boolean mrmAlert;
 	private String reconFrequency;
 	private String pendFrequency;
 	private String smartEditsFrequency;
 	private String reconEmailAddress;
 	private String pendEmailAddress;
 	private String smartEditsEmailAddress;
+	private String appealEmailAddress;
+	private String mrmEmailAddress;
+	private String hpsEmailAddress;
 	private String primaryEmailAddress;
 	private String providerName;
 
-	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert,
-			Boolean pendAlert, Boolean smartEditsAlert, String reconFrequency, String pendFrequency,
-			String smartEditsFrequency, String reconEmailAddress, String pendEmailAddress,
-			String smartEditsEmailAddress, String providerName) {
+	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert, Boolean pendAlert,
+			Boolean smartEditsAlert, String reconFrequency, String pendFrequency, String smartEditsFrequency,
+			String reconEmailAddress, String pendEmailAddress, String smartEditsEmailAddress, String providerName) {
 		super();
 		this.id = id;
 		this.corporateTaxID = corporateTaxID;
@@ -53,8 +58,6 @@ public class EmailDetails {
 	public void setId(String id) {
 		this.id = id;
 	}
-
-	
 
 	public String getCorporateTaxID() {
 		return corporateTaxID;
@@ -160,8 +163,57 @@ public class EmailDetails {
 		this.providerName = providerName;
 	}
 
+	public Boolean getHpcEditsAlert() {
+		return hpcEditsAlert;
+	}
+
+	public void setHpcEditsAlert(Boolean hpcEditsAlert) {
+		this.hpcEditsAlert = hpcEditsAlert;
+	}
+
+	public Boolean getAppealsAlert() {
+		return appealsAlert;
+	}
+
+	public void setAppealsAlert(Boolean appealsAlert) {
+		this.appealsAlert = appealsAlert;
+	}
+
+	public Boolean getMrmAlert() {
+		return mrmAlert;
+	}
+
+	public void setMrmAlert(Boolean mrmAlert) {
+		this.mrmAlert = mrmAlert;
+	}
+
+	public String getAppealEmailAddress() {
+		return appealEmailAddress;
+	}
+
+	public void setAppealEmailAddress(String appealEmailAddress) {
+		this.appealEmailAddress = appealEmailAddress;
+	}
+
+	public String getMrmEmailAddress() {
+		return mrmEmailAddress;
+	}
+
+	public void setMrmEmailAddress(String mrmEmailAddress) {
+		this.mrmEmailAddress = mrmEmailAddress;
+	}
+
+	public String getHpsEmailAddress() {
+		return hpsEmailAddress;
+	}
+
+	public void setHpsEmailAddress(String hpsEmailAddress) {
+		this.hpsEmailAddress = hpsEmailAddress;
+	}
+
 	public EmailDetails() {
 
 	}
 
 }
+

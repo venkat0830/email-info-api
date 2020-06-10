@@ -12,6 +12,9 @@ public class Constants {
 	public static final String RECORD_TYPE_RECON = "RECON";
 	public static final String RECORD_TYPE_PEND = "PEND";
 	public static final String RECORD_TYPE_SMARTEDITS = "SMARTEDITS";
+	public static final String RECORD_TYPE_HPC = "HPC";
+	public static final String RECORD_TYPE_APPEAL = "APPEAL";
+	public static final String RECORD_TYPE_MRM = "MRM";
 	public static final String MAIL_DAILY_SUBJECT = "Notification of Daily update Tickets in Trackit";
 	public static final String MAIL_WEEKLY_SUBJECT = "Notification of Weekly update Tickets in Trackit";
 	
@@ -19,3 +22,4 @@ public class Constants {
 	public static final String TRUE = "true";
 
 }
+

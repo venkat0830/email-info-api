@@ -2,7 +2,10 @@ package com.email.api.service;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.email.api.model.EmailDetails;
 import com.email.api.model.RecordDetails;
+import com.email.api.model.RecordsCount;
 import com.email.api.repository.EmailRepository;
 import com.email.api.utilities.Constants;
 import com.email.api.utilities.Error;
@@ -28,61 +32,163 @@ public class EmailServiceImpl implements EmailService {
 	@Autowired
 	JavaMailSender javaMailSender;
 
-	// @Autowired
-	// SmartEditsService smartEditsService;
-
 	private List<Error> validationList;
 
-	// @Scheduled(cron = " 0 0 8 ? * MON-FRI")
 	@Override
 	public void sendDailyEmail(EmailDetails emailDetails) throws Exception {
+
 		List<EmailDetails> details = new ArrayList<>();
+
 		if (LocalDate.isMondayToday()) {
 			details = emailRepository.getEmailDetails(null);
 		} else {
 			details = emailRepository.getEmailDetails(Constants.FREQ_DAILY);
 		}
-		for (EmailDetails emailDetails2 : details) {
-			if (!isSameEmailAddress(emailDetails2, Constants.FREQ_DAILY)) {
-				if (emailDetails2.getReconAlert() != null && emailDetails2.getReconAlert()
-						&& Constants.FREQ_DAILY.equals(emailDetails2.getReconFrequency())) {
-					sendEmailForRecon(emailDetails2, Constants.FREQ_DAILY, Constants.MAIL_DAILY_RECON_SUBJECT);
-				}
-				if (emailDetails2.getPendAlert() != null && emailDetails2.getPendAlert()
-						&& Constants.FREQ_DAILY.equals(emailDetails2.getPendFrequency())) {
-					sendEmailForPend(emailDetails2, Constants.FREQ_DAILY, Constants.MAIL_DAILY_PEND_SUBJECT);
 
-				}
+		Map<String, RecordsCount> map = null;
+		List<Map<String, RecordsCount>> mapList = new ArrayList<Map<String, RecordsCount>>();
 
-				if (LocalDate.isMondayToday()) {
-					if (!isSameEmailAddress(emailDetails2, Constants.FREQ_WEEKLY)) {
-						if (null != emailDetails2.getReconAlert() && emailDetails2.getReconAlert()
-								&& Constants.FREQ_WEEKLY.equals(emailDetails2.getReconFrequency())) {
-							sendEmailForRecon(emailDetails2, Constants.FREQ_WEEKLY, Constants.MAIL_WEEKLY_RECON_SUBJECT);
-						}
-						if (null != emailDetails2.getPendAlert() && emailDetails2.getPendAlert()
-								&& Constants.FREQ_WEEKLY.endsWith(emailDetails2.getPendFrequency())) {
-							sendEmailForPend(emailDetails2, Constants.FREQ_WEEKLY, Constants.MAIL_WEEKLY_PEND_SUBJECT);
-						}
+		for (EmailDetails emailDetail : details) {
+			map = getCountForRecordOld(emailDetail);
+			mapList.add(map);
+		}
+		Map<String, List<RecordsCount>> recordsMap = new HashMap<String, List<RecordsCount>>();
+		for (Map<String, RecordsCount> map2 : mapList) {
+			if (recordsMap.isEmpty()) {
+				List<RecordsCount> list = new ArrayList<RecordsCount>();
+				for (Entry<String, RecordsCount> recordCountMap : map2.entrySet()) {
+					String emailAddress = recordCountMap.getKey();
+					RecordsCount recordsCounts = recordCountMap.getValue();
+					list.add(recordsCounts);
+					recordsMap.put(emailAddress, list);
+				}
+			} else {
+				for (Entry<String, RecordsCount> recordCountMap : map2.entrySet()) {
+					String emailAddress = recordCountMap.getKey();
+					RecordsCount recordsCounts = recordCountMap.getValue();
+					if (recordsMap.containsKey(emailAddress)) {
+						List<RecordsCount> list = recordsMap.get(emailAddress);
+						list.add(recordsCounts);
+						recordsMap.put(emailAddress, list);
+					} else {
+						List<RecordsCount> list = new ArrayList<RecordsCount>();
+						list.add(recordsCounts);
+						recordsMap.put(emailAddress, list);
 					}
 				}
 			}
 		}
+		sendRecodEmailDetailsnew(recordsMap);
 	}
 
-	private void sendRecord(int reconCount, int pendCount, String subject, String emailAddress, String recordType,
-			String reconFrequency, String pendFrequency, String name, boolean isSameEmailAddress) throws Exception {
-		String content = getHTMLMessage(reconCount, pendCount, recordType, reconFrequency, pendFrequency, name,
-				isSameEmailAddress);
-		try {
-			sendMail(emailAddress, subject, content);
-		} catch (Exception ex) {
-			throw ex;
+	@Override
+	public EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID) {
+		return emailRepository.getProviderDetails(corporateTaxID, providerTin, uuID);
+	}
+
+	public Map<String, RecordsCount> getCountForRecordOld(EmailDetails emailDetails) {
+
+		Map<String, RecordsCount> mapCount = new HashMap<String, RecordsCount>();
+		RecordsCount count2 = new RecordsCount();
+		if (isValidType(emailDetails.getReconAlert())) {
+			List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+					Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
+			count2.setPendFrequency(emailDetails.getPendFrequency());
+			count2.setReconFrequency(emailDetails.getReconFrequency());
+			count2.setCorporateTaxID(emailDetails.getCorporateTaxID());
+			count2.setProviderTin(emailDetails.getProviderTin());
+			count2.setReconCount(recordDetails.size());
+			mapCount.put(emailDetails.getReconEmailAddress(), count2);
+		}
+		if (isValidType(emailDetails.getPendAlert())) {
+			List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+					Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
+			if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
+				RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
+				coun.setPendFrequency(emailDetails.getPendFrequency());
+				coun.setReconFrequency(emailDetails.getReconFrequency());
+				coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
+				coun.setProviderTin(emailDetails.getProviderTin());
+				coun.setPendCount(recordDetails.size());
+			} else {
+				RecordsCount count = new RecordsCount();
+				count.setPendFrequency(emailDetails.getPendFrequency());
+				count.setReconFrequency(emailDetails.getReconFrequency());
+				count.setCorporateTaxID(emailDetails.getCorporateTaxID());
+				count.setProviderTin(emailDetails.getProviderTin());
+				count.setPendCount(1);
+				mapCount.put(emailDetails.getPendEmailAddress(), count);
+
+			}
+
+		} 
+		if (LocalDate.isMondayToday()) {
+			if (isValidType(emailDetails.getReconAlert())) {
+				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
+				if (mapCount.containsKey(emailDetails.getReconEmailAddress())) {
+					RecordsCount coun = mapCount.get(emailDetails.getReconEmailAddress());
+					coun.setReconFrequency(emailDetails.getReconFrequency());
+					coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
+					coun.setProviderTin(emailDetails.getProviderTin());
+					coun.setReconCount(recordDetails.size());
+				} else {
+					RecordsCount count = new RecordsCount();
+					count.setReconFrequency(emailDetails.getReconFrequency());
+					count.setCorporateTaxID(emailDetails.getCorporateTaxID());
+					count.setProviderTin(emailDetails.getProviderTin());
+					count.setReconCount(recordDetails.size());
+					mapCount.put(emailDetails.getReconEmailAddress(), count);
+
+				}
+
+			}
+			if (isValidType(emailDetails.getPendAlert())) {
+				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+						Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
+				if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
+					RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
+					coun.setPendFrequency(emailDetails.getPendFrequency());
+					coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
+					coun.setProviderTin(emailDetails.getProviderTin());
+					coun.setPendCount(recordDetails.size());
+				} else {
+					RecordsCount count = new RecordsCount();
+					count.setPendFrequency(emailDetails.getPendFrequency());
+					count.setCorporateTaxID(emailDetails.getCorporateTaxID());
+					count.setProviderTin(emailDetails.getProviderTin());
+					count.setPendCount(1);
+					mapCount.put(emailDetails.getPendEmailAddress(), count);
+
+				}
+
+			} 	
+		}
+
+		return mapCount;
+	}
+
+	private boolean isValidType(Boolean alert) {
+		if ((alert != null && alert)) {
+			return true;
+		}
+		return false;
+
+	}
+
+	private void sendRecodEmailDetailsnew(Map<String, List<RecordsCount>> mapList) throws Exception {
+		for (Entry<String, List<RecordsCount>> recordCountMap : mapList.entrySet()) {
+			String emailAddress = recordCountMap.getKey();
+			List<RecordsCount> recordsCounts = recordCountMap.getValue();
+			try {
+				sendMail(emailAddress, getHTMLMessage(recordsCounts, "Venkat"));
+			} catch (Exception ex) {
+				throw ex;
+			}
 		}
 	}
 
-	private String getHTMLMessage(int reconCount, int pendCount, String recordType, String reconFrequency,
-			String pendFrequency, String name, boolean isSameEmailAddress) {
+	private String getHTMLMessage(List<RecordsCount> recordCountList, String name) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<!DOCTYPE html><html>");
 		stringBuilder.append("<head></head><body> <p>Hello  ");
@@ -91,109 +197,69 @@ public class EmailServiceImpl implements EmailService {
 		} else {
 			stringBuilder.append("Care Provider");
 		}
-		if (reconCount > 0 && Constants.FREQ_DAILY.equals(reconFrequency)) {
-			stringBuilder.append(",</p> <p> You have ");
-			stringBuilder.append(reconCount);
-			stringBuilder.append(" Reconsideration tickets that have been update in last 24hrs,");
+		stringBuilder.append("</p> <p>");
+		stringBuilder.append("<table >");
+		stringBuilder.append("<tr>");
+		stringBuilder.append(" <th>Corporate Tax ID</th>");
+		stringBuilder.append("<th>Provider Tin</th>");
+		stringBuilder.append(" <th>Recod Type</th>");
+		stringBuilder.append(" <th>Recod Count</th>");
+		stringBuilder.append(" <th>Frequency</th>");
+		stringBuilder.append("</tr>");
+		for (RecordsCount recordsCount : recordCountList) {
+
+			if (recordsCount.getReconCount() > 0 && Constants.FREQ_DAILY.equals(recordsCount.getReconFrequency())) {
+				stringBuilder.append("<tr>");
+				stringBuilder.append(" <th>" + recordsCount.getCorporateTaxID() + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getProviderTin() + "</th>");
+				stringBuilder.append(" <th>" + Constants.RECORD_TYPE_RECON + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getReconCount() + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getReconFrequency() + "</th>");
+				stringBuilder.append("</tr>");
+			}
+			if (recordsCount.getWeeklyReconCount() > 0
+					&& Constants.FREQ_WEEKLY.equals(recordsCount.getReconFrequency())) {
+				stringBuilder.append(",</p> <p> You have ");
+				stringBuilder.append(recordsCount.getWeeklyReconCount());
+				stringBuilder.append(" Reconsideration tickets that have been update in last week,");
+			}
+
+			if (recordsCount.getPendCount() > 0 && Constants.FREQ_DAILY.equals(recordsCount.getPendFrequency())) {
+				stringBuilder.append("<tr>");
+				stringBuilder.append(" <th>" + recordsCount.getCorporateTaxID() + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getProviderTin() + "</th>");
+				stringBuilder.append(" <th>" + Constants.RECORD_TYPE_PEND + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getPendCount() + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getPendFrequency() + "</th>");
+				stringBuilder.append("</tr>");
+			}
+
+			if (recordsCount.getWeeklyPendCount() > 0
+					&& Constants.FREQ_WEEKLY.equals(recordsCount.getPendFrequency())) {
+				stringBuilder.append("</p> You have ");
+				stringBuilder.append(recordsCount.getWeeklyPendCount());
+				stringBuilder.append(" Pended tickets that have been update in last week,");
+			}
 		}
-		if (pendCount > 0 && Constants.FREQ_DAILY.equals(pendFrequency)) {
-			stringBuilder.append("</p> You have ");
-			stringBuilder.append(pendCount);
-			stringBuilder.append(" Pended tickets that have been update in last 24hrs,");
-		}
-		if (reconCount > 0 && Constants.FREQ_WEEKLY.equals(reconFrequency)) {
-			stringBuilder.append(",</p> <p> You have ");
-			stringBuilder.append(reconCount);
-			stringBuilder.append(" Reconsideration tickets that have been update in last week,");
-		}
-		if (pendCount > 0 && Constants.FREQ_WEEKLY.equals(pendFrequency)) {
-			stringBuilder.append("</p> You have ");
-			stringBuilder.append(pendCount);
-			stringBuilder.append(" Pended tickets that have been update in last week,");
-		}
+		stringBuilder.append("</table >");
 		// }
 		stringBuilder.append(
 				" To view those update please <a href=\"https://www.google.com\" target=\"_blank\">click here</a>");
 		stringBuilder.append(
 				"For help using Trackit, refer to the quick reference guide or sign up for training webinar</p>");
 		stringBuilder.append("</body></html>");
+		System.out.println(stringBuilder.toString());
 		return stringBuilder.toString();
 	}
 
-	private void sendMail(String to, String Subject, String text)
-			throws MessagingException, UnsupportedEncodingException {
+	private void sendMail(String to, String text) throws MessagingException, UnsupportedEncodingException {
 		MimeMessage mail = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(mail, true, "UTF-8");
-		helper.setFrom("gpvenkat980@gmail.com", "Trackit");
+		helper.setFrom("venkatsai0830@gmail.com", "Trackit");
 		helper.setTo(to);
-		helper.setSubject(Subject);
+		helper.setSubject("Notification of TrackIt");
 		helper.setText(text, true);
 		javaMailSender.send(mail);
 		System.out.println("sent Email: " + to);
-	}
-
-	private boolean isSameEmailAddress(EmailDetails emailDetails, String frequency) throws Exception {
-		boolean isSame = false;
-		if ((null != emailDetails.getReconAlert() && emailDetails.getReconAlert())
-				&& (null != emailDetails.getPendAlert() && emailDetails.getPendAlert())) {
-			if (emailDetails.getReconEmailAddress().equals(emailDetails.getPendEmailAddress())) {
-				List<RecordDetails> reconDetails = new ArrayList<>();
-				List<RecordDetails> pendDetails = new ArrayList<>();
-				if (emailDetails.getReconFrequency().equals(Constants.FREQ_DAILY)) {
-					reconDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
-							Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
-				}
-				if (emailDetails.getReconFrequency().equals(Constants.FREQ_WEEKLY) && (LocalDate.isMondayToday())) {
-					reconDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
-							Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
-				}
-				if (emailDetails.getPendFrequency().equals(Constants.FREQ_DAILY)) {
-					pendDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
-							Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
-				}
-				if (emailDetails.getPendFrequency().equals(Constants.FREQ_WEEKLY) && (LocalDate.isMondayToday())) {
-					pendDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
-							Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
-				}
-				if (!reconDetails.isEmpty() || !pendDetails.isEmpty()) {
-					sendRecord(reconDetails.size(), pendDetails.size(), Constants.MAIL_WEEKLY_SUBJECT,
-							emailDetails.getReconEmailAddress(), Constants.RECORD_TYPE_RECON,
-							emailDetails.getReconFrequency(), emailDetails.getPendFrequency(),
-							emailDetails.getProviderName(), true);
-					return true;
-				}
-				return false;
-			}
-		}
-		return false;
-	}
-
-	public void sendEmailForRecon(EmailDetails emailDetails, String frequency, String subject) throws Exception {
-		List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
-				Constants.RECORD_TYPE_RECON, frequency);
-
-		if (!recordDetails.isEmpty()) {
-			sendRecord(recordDetails.size(), 0, subject, emailDetails.getReconEmailAddress(),
-					Constants.RECORD_TYPE_RECON, frequency, emailDetails.getPrimaryEmailAddress(),
-					emailDetails.getProviderName(), false);
-			System.out.println("SentEmail For Recon:" + emailDetails.getProviderTin());
-		}
-	}
-
-	public void sendEmailForPend(EmailDetails emailDetails, String frequency, String subject) throws Exception {
-		List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
-				Constants.RECORD_TYPE_PEND, frequency);
-
-		if (!recordDetails.isEmpty()) {
-			sendRecord(recordDetails.size(), 0, subject, emailDetails.getPendEmailAddress(), Constants.RECORD_TYPE_PEND,
-					frequency, emailDetails.getPrimaryEmailAddress(), emailDetails.getProviderName(), false);
-			System.out.println("SentEmail For Pend:" + emailDetails.getProviderTin());
-		}
-	}
-
-	@Override
-	public EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID) {
-		// TODO Auto-generated method stub
-		return emailRepository.getProviderDetails(corporateTaxID, providerTin, uuID);
 	}
 }

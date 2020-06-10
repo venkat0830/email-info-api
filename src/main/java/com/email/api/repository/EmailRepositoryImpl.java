@@ -35,7 +35,7 @@ public class EmailRepositoryImpl implements EmailRepository {
 		Criteria criteria = new Criteria();
 		if (frequency != null) {
 			criteria.orOperator(new Criteria("reconFrequency").is(frequency),
-					new Criteria("pendFrequency").is(frequency), new Criteria("smartEditsFrequency").is(frequency));
+					new Criteria("pendFrequency").is(frequency));
 			query.addCriteria(criteria);
 		}
 		System.out.println("Query: " + query);
@@ -43,7 +43,7 @@ public class EmailRepositoryImpl implements EmailRepository {
 	}
 
 	@Override
-	public List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency) {
+	public List<RecordDetails> getRecordList(String providerTin,String recordType,  String frequency) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("providerDetails.providerTin").is(providerTin));
 		query.addCriteria(Criteria.where("recordInfo.recordType").is(recordType));
