@@ -18,6 +18,7 @@ public class RecordsCount {
 	private String pendFrequency;
 	private String corporateTaxID;
 	private String providerTin;
+	private String providerName;
 
 	public String getCorporateTaxID() {
 		return corporateTaxID;
@@ -145,6 +146,14 @@ public class RecordsCount {
 
 	public void setPendFrequency(String pendFrequency) {
 		this.pendFrequency = pendFrequency;
+	}
+
+	public String getProviderName() {
+		return providerName;
+	}
+
+	public void setProviderName(String providerName) {
+		this.providerName = providerName;
 	}
 	
 	

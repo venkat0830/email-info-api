@@ -97,6 +97,7 @@ public class EmailServiceImpl implements EmailService {
 			count2.setReconFrequency(emailDetails.getReconFrequency());
 			count2.setCorporateTaxID(emailDetails.getCorporateTaxID());
 			count2.setProviderTin(emailDetails.getProviderTin());
+			count2.setProviderName(emailDetails.getProviderName());
 			count2.setReconCount(recordDetails.size());
 			mapCount.put(emailDetails.getReconEmailAddress(), count2);
 		}
@@ -109,6 +110,7 @@ public class EmailServiceImpl implements EmailService {
 				coun.setReconFrequency(emailDetails.getReconFrequency());
 				coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
 				coun.setProviderTin(emailDetails.getProviderTin());
+				coun.setProviderName(emailDetails.getProviderName());
 				coun.setPendCount(recordDetails.size());
 			} else {
 				RecordsCount count = new RecordsCount();
@@ -116,12 +118,13 @@ public class EmailServiceImpl implements EmailService {
 				count.setReconFrequency(emailDetails.getReconFrequency());
 				count.setCorporateTaxID(emailDetails.getCorporateTaxID());
 				count.setProviderTin(emailDetails.getProviderTin());
+				count.setProviderName(emailDetails.getProviderName());
 				count.setPendCount(1);
 				mapCount.put(emailDetails.getPendEmailAddress(), count);
 
 			}
 
-		} 
+		}
 		if (LocalDate.isMondayToday()) {
 			if (isValidType(emailDetails.getReconAlert())) {
 				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
@@ -162,7 +165,7 @@ public class EmailServiceImpl implements EmailService {
 
 				}
 
-			} 	
+			}
 		}
 
 		return mapCount;
@@ -181,17 +184,19 @@ public class EmailServiceImpl implements EmailService {
 			String emailAddress = recordCountMap.getKey();
 			List<RecordsCount> recordsCounts = recordCountMap.getValue();
 			try {
-				sendMail(emailAddress, getHTMLMessage(recordsCounts, "Venkat"));
+				String text = getHTMLMessage(recordsCounts);
+				sendMail(emailAddress, text);
 			} catch (Exception ex) {
 				throw ex;
 			}
 		}
 	}
 
-	private String getHTMLMessage(List<RecordsCount> recordCountList, String name) {
+	private String getHTMLMessage(List<RecordsCount> recordCountList) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<!DOCTYPE html><html>");
 		stringBuilder.append("<head></head><body> <p>Hello  ");
+		String name =  recordCountList.get(0).getProviderName();
 		if (null != name) {
 			stringBuilder.append(name);
 		} else {
@@ -206,6 +211,7 @@ public class EmailServiceImpl implements EmailService {
 		stringBuilder.append(" <th>Recod Count</th>");
 		stringBuilder.append(" <th>Frequency</th>");
 		stringBuilder.append("</tr>");
+		boolean isPend = false;
 		for (RecordsCount recordsCount : recordCountList) {
 
 			if (recordsCount.getReconCount() > 0 && Constants.FREQ_DAILY.equals(recordsCount.getReconFrequency())) {
@@ -232,6 +238,7 @@ public class EmailServiceImpl implements EmailService {
 				stringBuilder.append(" <th>" + recordsCount.getPendCount() + "</th>");
 				stringBuilder.append(" <th>" + recordsCount.getPendFrequency() + "</th>");
 				stringBuilder.append("</tr>");
+				isPend = true;
 			}
 
 			if (recordsCount.getWeeklyPendCount() > 0
@@ -242,7 +249,9 @@ public class EmailServiceImpl implements EmailService {
 			}
 		}
 		stringBuilder.append("</table >");
-		// }
+		if (isPend) {
+			stringBuilder.append("<br>Pended claims are very important.");
+		}	
 		stringBuilder.append(
 				" To view those update please <a href=\"https://www.google.com\" target=\"_blank\">click here</a>");
 		stringBuilder.append(
