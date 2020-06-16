@@ -46,38 +46,27 @@ public class EmailServiceImpl implements EmailService {
 		}
 
 		Map<String, RecordsCount> map = null;
-		List<Map<String, RecordsCount>> mapList = new ArrayList<Map<String, RecordsCount>>();
+		Map<String, List<RecordsCount>> recordsMap = new HashMap<String, List<RecordsCount>>();
 
 		for (EmailDetails emailDetail : details) {
+
 			map = getCountForRecordOld(emailDetail);
-			mapList.add(map);
-		}
-		Map<String, List<RecordsCount>> recordsMap = new HashMap<String, List<RecordsCount>>();
-		for (Map<String, RecordsCount> map2 : mapList) {
-			if (recordsMap.isEmpty()) {
-				List<RecordsCount> list = new ArrayList<RecordsCount>();
-				for (Entry<String, RecordsCount> recordCountMap : map2.entrySet()) {
-					String emailAddress = recordCountMap.getKey();
-					RecordsCount recordsCounts = recordCountMap.getValue();
+
+			for (Entry<String, RecordsCount> recordCountMap : map.entrySet()) {
+				String emailAddress = recordCountMap.getKey();
+				RecordsCount recordsCounts = recordCountMap.getValue();
+				if (recordsMap.containsKey(emailAddress)) {
+					List<RecordsCount> list = recordsMap.get(emailAddress);
+					list.add(recordsCounts);
+					recordsMap.put(emailAddress, list);
+				} else {
+					List<RecordsCount> list = new ArrayList<RecordsCount>();
 					list.add(recordsCounts);
 					recordsMap.put(emailAddress, list);
 				}
-			} else {
-				for (Entry<String, RecordsCount> recordCountMap : map2.entrySet()) {
-					String emailAddress = recordCountMap.getKey();
-					RecordsCount recordsCounts = recordCountMap.getValue();
-					if (recordsMap.containsKey(emailAddress)) {
-						List<RecordsCount> list = recordsMap.get(emailAddress);
-						list.add(recordsCounts);
-						recordsMap.put(emailAddress, list);
-					} else {
-						List<RecordsCount> list = new ArrayList<RecordsCount>();
-						list.add(recordsCounts);
-						recordsMap.put(emailAddress, list);
-					}
-				}
 			}
 		}
+
 		sendRecodEmailDetailsnew(recordsMap);
 	}
 
