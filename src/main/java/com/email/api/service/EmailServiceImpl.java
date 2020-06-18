@@ -82,7 +82,6 @@ public class EmailServiceImpl implements EmailService {
 		if (isValidType(emailDetails.getReconAlert())) {
 			List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 					Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
-			count2.setPendFrequency(emailDetails.getPendFrequency());
 			count2.setReconFrequency(emailDetails.getReconFrequency());
 			count2.setCorporateTaxID(emailDetails.getCorporateTaxID());
 			count2.setProviderTin(emailDetails.getProviderTin());
