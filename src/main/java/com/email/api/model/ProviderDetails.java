@@ -4,6 +4,7 @@ public class ProviderDetails {
 	
 	private String providerTin;
 	private String providerName;
+	private String operatorEmailAddress;
 	
 	public ProviderDetails( ) {
 	
@@ -24,6 +25,12 @@ public class ProviderDetails {
 	}
 	public void setProviderName(String providerName) {
 		this.providerName = providerName;
+	}
+	public String getOperatorEmailAddress() {
+		return operatorEmailAddress;
+	}
+	public void setOperatorEmailAddress(String operatorEmailAddress) {
+		this.operatorEmailAddress = operatorEmailAddress;
 	}	
 	
 

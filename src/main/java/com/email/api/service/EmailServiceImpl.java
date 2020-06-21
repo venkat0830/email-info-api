@@ -79,37 +79,64 @@ public class EmailServiceImpl implements EmailService {
 
 		Map<String, RecordsCount> mapCount = new HashMap<String, RecordsCount>();
 		RecordsCount count2 = new RecordsCount();
+
 		if (isValidType(emailDetails.getReconAlert())) {
-			List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
+			List<RecordDetails> reconRecordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 					Constants.RECORD_TYPE_RECON, Constants.FREQ_DAILY);
-			count2.setReconFrequency(emailDetails.getReconFrequency());
-			count2.setCorporateTaxID(emailDetails.getCorporateTaxID());
-			count2.setProviderTin(emailDetails.getProviderTin());
-			count2.setProviderName(emailDetails.getProviderName());
-			count2.setReconCount(recordDetails.size());
-			mapCount.put(emailDetails.getReconEmailAddress(), count2);
+			int recordCount = 0;
+			for (RecordDetails recordDetails : reconRecordDetails) {
+				if (null != emailDetails.getReconEmailAddress()
+						&& null != recordDetails.getProviderDetails().getOperatorEmailAddress()
+						&& null != emailDetails.getPrimaryEmailAddress()) {
+					if (emailDetails.getReconEmailAddress()
+							.equals(recordDetails.getProviderDetails().getOperatorEmailAddress())
+							|| emailDetails.getPrimaryEmailAddress()
+									.equals(recordDetails.getProviderDetails().getOperatorEmailAddress())) {
+						recordCount++;
+					}
+				}
+			}
+			if (recordCount > 0) {
+				count2.setReconFrequency(emailDetails.getReconFrequency());
+				count2.setCorporateTaxID(emailDetails.getCorporateTaxID());
+				count2.setProviderTin(emailDetails.getProviderTin());
+				count2.setProviderName(emailDetails.getProviderName());
+				count2.setReconCount(recordCount);
+				mapCount.put(emailDetails.getReconEmailAddress(), count2);
+			}
 		}
 		if (isValidType(emailDetails.getPendAlert())) {
 			List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 					Constants.RECORD_TYPE_PEND, Constants.FREQ_DAILY);
-			if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
-				RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
-				coun.setPendFrequency(emailDetails.getPendFrequency());
-				coun.setReconFrequency(emailDetails.getReconFrequency());
-				coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
-				coun.setProviderTin(emailDetails.getProviderTin());
-				coun.setProviderName(emailDetails.getProviderName());
-				coun.setPendCount(recordDetails.size());
-			} else {
-				RecordsCount count = new RecordsCount();
-				count.setPendFrequency(emailDetails.getPendFrequency());
-				count.setReconFrequency(emailDetails.getReconFrequency());
-				count.setCorporateTaxID(emailDetails.getCorporateTaxID());
-				count.setProviderTin(emailDetails.getProviderTin());
-				count.setProviderName(emailDetails.getProviderName());
-				count.setPendCount(1);
-				mapCount.put(emailDetails.getPendEmailAddress(), count);
+			int pendRecordCount = 0;
+			for (RecordDetails recordDetails2 : recordDetails) {
+				if (emailDetails.getReconEmailAddress()
+						.equals(recordDetails2.getProviderDetails().getOperatorEmailAddress())
+						|| emailDetails.getPrimaryEmailAddress()
+								.equals(recordDetails2.getProviderDetails().getOperatorEmailAddress())) {
+					pendRecordCount++;
+				}
+			}
+			if (pendRecordCount > 0) {
+				if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
+					RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
+					coun.setPendFrequency(emailDetails.getPendFrequency());
+					coun.setReconFrequency(emailDetails.getReconFrequency());
+					coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
+					coun.setProviderTin(emailDetails.getProviderTin());
+					coun.setProviderName(emailDetails.getProviderName());
+					coun.setPendCount(pendRecordCount);
+				} else {
+					RecordsCount count = new RecordsCount();
+					count.setPendFrequency(emailDetails.getPendFrequency());
+					count.setReconFrequency(emailDetails.getReconFrequency());
+					count.setCorporateTaxID(emailDetails.getCorporateTaxID());
+					count.setProviderTin(emailDetails.getProviderTin());
+					count.setProviderName(emailDetails.getProviderName());
+					count.setPendCount(1);
+					mapCount.put(emailDetails.getPendEmailAddress(), count);
 
+				}
 			}
 
 		}
@@ -117,40 +144,62 @@ public class EmailServiceImpl implements EmailService {
 			if (isValidType(emailDetails.getReconAlert())) {
 				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_RECON, Constants.FREQ_WEEKLY);
-				if (mapCount.containsKey(emailDetails.getReconEmailAddress())) {
-					RecordsCount coun = mapCount.get(emailDetails.getReconEmailAddress());
-					coun.setReconFrequency(emailDetails.getReconFrequency());
-					coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
-					coun.setProviderTin(emailDetails.getProviderTin());
-					coun.setReconCount(recordDetails.size());
-				} else {
-					RecordsCount count = new RecordsCount();
-					count.setReconFrequency(emailDetails.getReconFrequency());
-					count.setCorporateTaxID(emailDetails.getCorporateTaxID());
-					count.setProviderTin(emailDetails.getProviderTin());
-					count.setReconCount(recordDetails.size());
-					mapCount.put(emailDetails.getReconEmailAddress(), count);
+				int recordCount = 0;
+				for (RecordDetails recordDetails2 : recordDetails) {
+					if (emailDetails.getReconEmailAddress()
+							.equals(recordDetails2.getProviderDetails().getOperatorEmailAddress())
+							|| emailDetails.getPrimaryEmailAddress()
+									.equals(recordDetails2.getProviderDetails().getOperatorEmailAddress())) {
+						recordCount++;
+					}
+				}
+				if (recordCount > 0) {
+					if (mapCount.containsKey(emailDetails.getReconEmailAddress())) {
+						RecordsCount coun = mapCount.get(emailDetails.getReconEmailAddress());
+						coun.setReconFrequency(emailDetails.getReconFrequency());
+						coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
+						coun.setProviderTin(emailDetails.getProviderTin());
+						coun.setReconCount(recordDetails.size());
+					} else {
+						RecordsCount count = new RecordsCount();
+						count.setReconFrequency(emailDetails.getReconFrequency());
+						count.setCorporateTaxID(emailDetails.getCorporateTaxID());
+						count.setProviderTin(emailDetails.getProviderTin());
+						count.setReconCount(recordDetails.size());
+						mapCount.put(emailDetails.getReconEmailAddress(), count);
 
+					}
 				}
 
 			}
 			if (isValidType(emailDetails.getPendAlert())) {
 				List<RecordDetails> recordDetails = emailRepository.getRecordList(emailDetails.getProviderTin(),
 						Constants.RECORD_TYPE_PEND, Constants.FREQ_WEEKLY);
-				if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
-					RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
-					coun.setPendFrequency(emailDetails.getPendFrequency());
-					coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
-					coun.setProviderTin(emailDetails.getProviderTin());
-					coun.setPendCount(recordDetails.size());
-				} else {
-					RecordsCount count = new RecordsCount();
-					count.setPendFrequency(emailDetails.getPendFrequency());
-					count.setCorporateTaxID(emailDetails.getCorporateTaxID());
-					count.setProviderTin(emailDetails.getProviderTin());
-					count.setPendCount(1);
-					mapCount.put(emailDetails.getPendEmailAddress(), count);
+				int pendRecordCount = 0;
+				for (RecordDetails recordDetails2 : recordDetails) {
+					if (emailDetails.getReconEmailAddress()
+							.equals(recordDetails2.getProviderDetails().getOperatorEmailAddress())
+							|| emailDetails.getPrimaryEmailAddress()
+									.equals(recordDetails2.getProviderDetails().getOperatorEmailAddress())) {
+						pendRecordCount++;
+					}
+				}
+				if (pendRecordCount > 0) {
+					if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
+						RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
+						coun.setPendFrequency(emailDetails.getPendFrequency());
+						coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
+						coun.setProviderTin(emailDetails.getProviderTin());
+						coun.setPendCount(recordDetails.size());
+					} else {
+						RecordsCount count = new RecordsCount();
+						count.setPendFrequency(emailDetails.getPendFrequency());
+						count.setCorporateTaxID(emailDetails.getCorporateTaxID());
+						count.setProviderTin(emailDetails.getProviderTin());
+						count.setPendCount(1);
+						mapCount.put(emailDetails.getPendEmailAddress(), count);
 
+					}
 				}
 
 			}
@@ -184,7 +233,7 @@ public class EmailServiceImpl implements EmailService {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<!DOCTYPE html><html>");
 		stringBuilder.append("<head></head><body> <p>Hello  ");
-		String name =  recordCountList.get(0).getProviderName();
+		String name = recordCountList.get(0).getProviderName();
 		if (null != name) {
 			stringBuilder.append(name);
 		} else {
@@ -239,7 +288,7 @@ public class EmailServiceImpl implements EmailService {
 		stringBuilder.append("</table >");
 		if (isPend) {
 			stringBuilder.append("<br>Pended claims are very important.");
-		}	
+		}
 		stringBuilder.append(
 				" To view those update please <a href=\"https://www.google.com\" target=\"_blank\">click here</a>");
 		stringBuilder.append(
