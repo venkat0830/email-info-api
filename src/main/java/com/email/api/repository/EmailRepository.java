@@ -2,6 +2,7 @@ package com.email.api.repository;
 
 import java.util.List;
 
+import com.email.api.model.AuditEmailDetails;
 import com.email.api.model.EmailDetails;
 import com.email.api.model.RecordDetails;
 
@@ -12,4 +13,9 @@ public interface EmailRepository {
 	List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency);
 
 	EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID);
+	
+//	void saveAudit(AuditEmailDetails auditEmailDeteals);
+	
+	List<EmailDetails> getDetailsWithPrimaryEmailAddress(String primaryEmailAddress);
+	
 }

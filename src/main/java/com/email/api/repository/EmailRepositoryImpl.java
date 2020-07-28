@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.email.api.model.AuditEmailDetails;
 import com.email.api.model.EmailDetails;
 import com.email.api.model.RecordDetails;
 import com.email.api.model.RecordInfo;
@@ -43,7 +44,7 @@ public class EmailRepositoryImpl implements EmailRepository {
 	}
 
 	@Override
-	public List<RecordDetails> getRecordList(String providerTin,String recordType,  String frequency) {
+	public List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("providerDetails.providerTin").is(providerTin));
 		query.addCriteria(Criteria.where("recordInfo.recordType").is(recordType));
@@ -77,5 +78,31 @@ public class EmailRepositoryImpl implements EmailRepository {
 		List<EmailDetails> emailDetails = mongoTemplate.find(query, EmailDetails.class);
 		return emailDetails.get(0);
 	}
+
+	@Override
+	public List<EmailDetails> getDetailsWithPrimaryEmailAddress(String primaryEmailAddress) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("primaryEmailAddress").is(primaryEmailAddress));
+		System.out.println("Operated Query:" + query);
+		List<EmailDetails> details = mongoTemplate.find(query, EmailDetails.class);
+		return details;
+	}
+
+//	@Override
+//	public void saveAudit(AuditEmailDetails auditEmailDeteals) {
+//		
+//		mongoTemplate.save(auditEmailDeteals);
+//	}
+
+//	@Override
+//	public List<AuditEmailDetails> getAuditEmailDetails(String corporateTaxID, String providerTin, String uuID) {
+//		Query query = new Query();
+//		query.addCriteria(Criteria.where("corporateTaxID").is(corporateTaxID));
+//		query.addCriteria(Criteria.where("providerTin").is(providerTin));
+//		query.addCriteria(Criteria.where("uuID").is(uuID));
+//		System.out.println("Query : " + query);
+//		List<AuditEmailDeteals> emailDetails = mongoTemplate.find(query, AuditEmailDeteals.class);
+//		return emailDetails;
+//	}
 
 }

@@ -19,6 +19,8 @@ public class RecordsCount {
 	private String corporateTaxID;
 	private String providerTin;
 	private String providerName;
+	private String uuID;
+	private String ProviderOrganization;
 
 	public String getCorporateTaxID() {
 		return corporateTaxID;
@@ -26,6 +28,15 @@ public class RecordsCount {
 
 	public void setCorporateTaxID(String corporateTaxID) {
 		this.corporateTaxID = corporateTaxID;
+	}
+	
+
+	public String getUuID() {
+		return uuID;
+	}
+
+	public void setUuID(String uuID) {
+		this.uuID = uuID;
 	}
 
 	public String getProviderTin() {
@@ -154,6 +165,14 @@ public class RecordsCount {
 
 	public void setProviderName(String providerName) {
 		this.providerName = providerName;
+	}
+
+	public String getProviderOrganization() {
+		return ProviderOrganization;
+	}
+
+	public void setProviderOrganization(String providerOrganization) {
+		ProviderOrganization = providerOrganization;
 	}
 	
 	

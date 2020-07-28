@@ -30,7 +30,7 @@ public class EmailNotificationController {
 	ParameterValidation parameterValidation;
 
 	@RequestMapping(value = "/retrieveDailyEmail", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<BaseResponse> getDailyEmailDetails() {
+	public ResponseEntity<BaseResponse> getEmailDetails() {
 		try {
 //			 ResponseEntity<Object> boTableResp = getBOTable();
 //			 BoTable boTable = new BoTable();
@@ -108,6 +108,8 @@ public class EmailNotificationController {
 			return new ResponseEntity<BaseResponse>(resp, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	
 	
 	
 }

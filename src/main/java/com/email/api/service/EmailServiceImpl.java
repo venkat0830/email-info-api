@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.email.api.model.AuditEmailDetails;
 import com.email.api.model.EmailDetails;
 import com.email.api.model.RecordDetails;
 import com.email.api.model.RecordsCount;
@@ -45,29 +46,36 @@ public class EmailServiceImpl implements EmailService {
 			details = emailRepository.getEmailDetails(Constants.FREQ_DAILY);
 		}
 
-		Map<String, RecordsCount> map = null;
-		Map<String, List<RecordsCount>> recordsMap = new HashMap<String, List<RecordsCount>>();
+		List<String> primaryEmailAddressList = new ArrayList<String>();
+		for (EmailDetails emailDetails1 : details) {
+			if (!primaryEmailAddressList.contains(emailDetails1.getPrimaryEmailAddress())) {
+				primaryEmailAddressList.add(emailDetails1.getPrimaryEmailAddress());
+				List<EmailDetails> detailsV1 = new ArrayList<EmailDetails>();
+				detailsV1 = emailRepository.getDetailsWithPrimaryEmailAddress(emailDetails1.getPrimaryEmailAddress());
+				Map<String, List<RecordsCount>> recordsMap = new HashMap<String, List<RecordsCount>>();
 
-		for (EmailDetails emailDetail : details) {
+				for (EmailDetails primaryEmailDetail1 : detailsV1) {
 
-			map = getCountForRecordOld(emailDetail);
+					Map<String, RecordsCount> map = getCountForRecordOld(primaryEmailDetail1);
 
-			for (Entry<String, RecordsCount> recordCountMap : map.entrySet()) {
-				String emailAddress = recordCountMap.getKey();
-				RecordsCount recordsCounts = recordCountMap.getValue();
-				if (recordsMap.containsKey(emailAddress)) {
-					List<RecordsCount> list = recordsMap.get(emailAddress);
-					list.add(recordsCounts);
-					recordsMap.put(emailAddress, list);
-				} else {
-					List<RecordsCount> list = new ArrayList<RecordsCount>();
-					list.add(recordsCounts);
-					recordsMap.put(emailAddress, list);
+					for (Entry<String, RecordsCount> recordCountMap : map.entrySet()) {
+						String emailAddress = recordCountMap.getKey();
+						RecordsCount recordsCounts = recordCountMap.getValue();
+						if (recordsMap.containsKey(emailAddress)) {
+							List<RecordsCount> list = recordsMap.get(emailAddress);
+							list.add(recordsCounts);
+							recordsMap.put(emailAddress, list);
+						} else {
+							List<RecordsCount> list = new ArrayList<RecordsCount>();
+							list.add(recordsCounts);
+							recordsMap.put(emailAddress, list);
+						}
+					}
 				}
+				sendRecodEmailDetailsnew(recordsMap);
 			}
 		}
 
-		sendRecodEmailDetailsnew(recordsMap);
 	}
 
 	@Override
@@ -100,8 +108,10 @@ public class EmailServiceImpl implements EmailService {
 				count2.setReconFrequency(emailDetails.getReconFrequency());
 				count2.setCorporateTaxID(emailDetails.getCorporateTaxID());
 				count2.setProviderTin(emailDetails.getProviderTin());
-				count2.setProviderName(emailDetails.getProviderName());
+				count2.setUuID(emailDetails.getUuID());
+//				count2.setProviderName(emailDetails.getProviderName());
 				count2.setReconCount(recordCount);
+				count2.setProviderOrganization(emailDetails.getProviderName());
 				mapCount.put(emailDetails.getReconEmailAddress(), count2);
 			}
 		}
@@ -121,10 +131,11 @@ public class EmailServiceImpl implements EmailService {
 				if (mapCount.containsKey(emailDetails.getPendEmailAddress())) {
 					RecordsCount coun = mapCount.get(emailDetails.getPendEmailAddress());
 					coun.setPendFrequency(emailDetails.getPendFrequency());
-					coun.setReconFrequency(emailDetails.getReconFrequency());
 					coun.setCorporateTaxID(emailDetails.getCorporateTaxID());
 					coun.setProviderTin(emailDetails.getProviderTin());
-					coun.setProviderName(emailDetails.getProviderName());
+					coun.setUuID(emailDetails.getUuID());
+//					coun.setProviderName(emailDetails.getProviderName());
+					coun.setProviderOrganization(emailDetails.getProviderName());
 					coun.setPendCount(pendRecordCount);
 				} else {
 					RecordsCount count = new RecordsCount();
@@ -132,7 +143,8 @@ public class EmailServiceImpl implements EmailService {
 					count.setReconFrequency(emailDetails.getReconFrequency());
 					count.setCorporateTaxID(emailDetails.getCorporateTaxID());
 					count.setProviderTin(emailDetails.getProviderTin());
-					count.setProviderName(emailDetails.getProviderName());
+//					count.setProviderName(emailDetails.getProviderName());
+					count.setProviderOrganization(emailDetails.getProviderName());
 					count.setPendCount(1);
 					mapCount.put(emailDetails.getPendEmailAddress(), count);
 
@@ -223,6 +235,10 @@ public class EmailServiceImpl implements EmailService {
 			try {
 				String text = getHTMLMessage(recordsCounts);
 				sendMail(emailAddress, text);
+//				for (RecordsCount recordsCount : recordsCounts) {
+//					AuditEmailDetails auditEmailDeteals = convertToAudit(recordsCount, emailAddress);
+//					emailRepository.saveAudit(auditEmailDeteals);
+//				}
 			} catch (Exception ex) {
 				throw ex;
 			}
@@ -233,12 +249,12 @@ public class EmailServiceImpl implements EmailService {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<!DOCTYPE html><html>");
 		stringBuilder.append("<head></head><body> <p>Hello  ");
-		String name = recordCountList.get(0).getProviderName();
-		if (null != name) {
-			stringBuilder.append(name);
-		} else {
-			stringBuilder.append("Care Provider");
-		}
+//		String name = recordCountList.get(0).getProviderName();
+//		if (null != name) {
+//			stringBuilder.append(name);
+//		} else {
+		stringBuilder.append("Care Provider");
+//		}
 		stringBuilder.append("</p> <p>");
 		stringBuilder.append("<table >");
 		stringBuilder.append("<tr>");
@@ -247,6 +263,7 @@ public class EmailServiceImpl implements EmailService {
 		stringBuilder.append(" <th>Recod Type</th>");
 		stringBuilder.append(" <th>Recod Count</th>");
 		stringBuilder.append(" <th>Frequency</th>");
+		stringBuilder.append(" <th>Provider Organization/Name</th>");
 		stringBuilder.append("</tr>");
 		boolean isPend = false;
 		for (RecordsCount recordsCount : recordCountList) {
@@ -258,6 +275,7 @@ public class EmailServiceImpl implements EmailService {
 				stringBuilder.append(" <th>" + Constants.RECORD_TYPE_RECON + "</th>");
 				stringBuilder.append(" <th>" + recordsCount.getReconCount() + "</th>");
 				stringBuilder.append(" <th>" + recordsCount.getReconFrequency() + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getProviderOrganization() + "</th>");
 				stringBuilder.append("</tr>");
 			}
 			if (recordsCount.getWeeklyReconCount() > 0
@@ -274,6 +292,7 @@ public class EmailServiceImpl implements EmailService {
 				stringBuilder.append(" <th>" + Constants.RECORD_TYPE_PEND + "</th>");
 				stringBuilder.append(" <th>" + recordsCount.getPendCount() + "</th>");
 				stringBuilder.append(" <th>" + recordsCount.getPendFrequency() + "</th>");
+				stringBuilder.append(" <th>" + recordsCount.getProviderOrganization() + "</th>");
 				stringBuilder.append("</tr>");
 				isPend = true;
 			}
@@ -308,4 +327,23 @@ public class EmailServiceImpl implements EmailService {
 		javaMailSender.send(mail);
 		System.out.println("sent Email: " + to);
 	}
+
+//	private AuditEmailDetails convertToAudit(RecordsCount recordsCount, String emailAddress) {
+//		AuditEmailDetails auditEmailDeteals = new AuditEmailDetails();
+//		auditEmailDeteals.setCorporateTaxID(recordsCount.getCorporateTaxID());
+//		auditEmailDeteals.setEmailAddress(emailAddress);
+//		auditEmailDeteals.setPendCount(recordsCount.getPendCount());
+//		auditEmailDeteals.setReconCount(recordsCount.getReconCount());
+//		auditEmailDeteals.setPendFrequency(recordsCount.getPendFrequency());
+//		auditEmailDeteals.setReconFrequency(recordsCount.getReconFrequency());
+//		auditEmailDeteals.setProviderTin(recordsCount.getProviderTin());
+//		auditEmailDeteals.setUuID(recordsCount.getUuID());
+//		auditEmailDeteals.setCreatedDate(LocalDate.getCDT());
+//		return auditEmailDeteals;
+//	}
+
+//	@Override
+//	public List<AuditEmailDetails> getAuditEmailDetails(String corporateTaxID, String providerTin, String uuID) {
+//		return emailRepository.getAuditEmailDetails(corporateTaxID, providerTin, uuID);
+//	}
 }

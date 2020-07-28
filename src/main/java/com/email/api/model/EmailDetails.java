@@ -6,12 +6,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@Document(collection = "trackitEmailReg")
+@Document(collection = "trackEmail")
 @JsonInclude(Include.NON_NULL)
 public class EmailDetails {
 
 	@Id
 	private String id;
+	private String uuID;
 	private String corporateTaxID;
 	private String providerTin;
 	private Boolean reconAlert;
@@ -209,6 +210,15 @@ public class EmailDetails {
 
 	public void setHpsEmailAddress(String hpsEmailAddress) {
 		this.hpsEmailAddress = hpsEmailAddress;
+	}
+	
+
+	public String getUuID() {
+		return uuID;
+	}
+
+	public void setUuID(String uuID) {
+		this.uuID = uuID;
 	}
 
 	public EmailDetails() {
