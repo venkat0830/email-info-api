@@ -32,7 +32,7 @@ public class LocalDate {
 
 	public static boolean isMondayToday() {
 		Calendar cal = Calendar.getInstance();
-		//cal.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+		// cal.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
 		if (Calendar.WEDNESDAY == cal.get(Calendar.DAY_OF_WEEK)) {
 			return true;
 		}
@@ -40,7 +40,7 @@ public class LocalDate {
 
 	}
 
-	public static Date getLastUpdatedDate(String frequency) {
+	public static String getLastUpdatedDate(String frequency) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		Calendar cal = Calendar.getInstance();
 		if (frequency.equals(Constants.FREQ_DAILY)) {
@@ -59,27 +59,30 @@ public class LocalDate {
 		}
 
 		Date dailyDateTime = cal.getTime();
-		Date formatDate = new Date();
-		try {
-			formatDate = simpleDateFormat.parse(simpleDateFormat.format(dailyDateTime));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return formatDate;
+		return simpleDateFormat.format(dailyDateTime);
 	}
 
-	public static Date getCurrentDate() { //// Daily
+	public static String getCurrentDate(String frequency) { //// Daily
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE);
 		try {
-			cal.set(Calendar.HOUR_OF_DAY, 6);
-			cal.set(Calendar.MINUTE, 00);
-			cal.set(Calendar.SECOND, 00);
+			if (frequency.equals("Daily")) {
+				cal.set(Calendar.HOUR_OF_DAY, 6);
+				cal.set(Calendar.MINUTE, 00);
+				cal.set(Calendar.SECOND, 00);
+			}
+			if (frequency.equals("Weekly")) {
+				cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+				cal.set(Calendar.HOUR_OF_DAY, 6);
+				cal.set(Calendar.MINUTE, 00);
+				cal.set(Calendar.SECOND, 00);
+			}
+
 		} catch (Exception e) {
 			throw e;
 		}
 		Date currentDateTime = cal.getTime();
-		return currentDateTime;
+		return simpleDateFormat.format(currentDateTime);
 
 	}
 

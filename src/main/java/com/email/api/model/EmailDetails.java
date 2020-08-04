@@ -32,10 +32,11 @@ public class EmailDetails {
 	private String hpsEmailAddress;
 	private String primaryEmailAddress;
 	private String providerName;
+	private Boolean isSameEmailAddress;
 
 	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert, Boolean pendAlert,
 			Boolean smartEditsAlert, String reconFrequency, String pendFrequency, String smartEditsFrequency,
-			String reconEmailAddress, String pendEmailAddress, String smartEditsEmailAddress, String providerName) {
+			String reconEmailAddress, String pendEmailAddress, String smartEditsEmailAddress, String providerName,Boolean isSameEmailAddress) {
 		super();
 		this.id = id;
 		this.corporateTaxID = corporateTaxID;
@@ -50,6 +51,7 @@ public class EmailDetails {
 		this.pendEmailAddress = pendEmailAddress;
 		this.smartEditsEmailAddress = smartEditsEmailAddress;
 		this.providerName = providerName;
+		this.isSameEmailAddress=isSameEmailAddress;
 	}
 
 	public String getId() {
@@ -224,6 +226,16 @@ public class EmailDetails {
 	public EmailDetails() {
 
 	}
+
+	public Boolean getIsSameEmailAddress() {
+		return isSameEmailAddress;
+	}
+
+	public void setIsSameEmailAddress(Boolean isSameEmailAddress) {
+		this.isSameEmailAddress = isSameEmailAddress;
+	}
+	
+	
 
 }
 

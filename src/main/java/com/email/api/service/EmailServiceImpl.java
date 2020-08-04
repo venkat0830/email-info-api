@@ -48,15 +48,16 @@ public class EmailServiceImpl implements EmailService {
 
 		List<String> primaryEmailAddressList = new ArrayList<String>();
 		for (EmailDetails emailDetails1 : details) {
-			if (!primaryEmailAddressList.contains(emailDetails1.getPrimaryEmailAddress())) {
+			if (null != emailDetails1.getPrimaryEmailAddress()
+					&& !primaryEmailAddressList.contains(emailDetails1.getPrimaryEmailAddress())) {
 				primaryEmailAddressList.add(emailDetails1.getPrimaryEmailAddress());
 				List<EmailDetails> detailsV1 = new ArrayList<EmailDetails>();
 				detailsV1 = emailRepository.getDetailsWithPrimaryEmailAddress(emailDetails1.getPrimaryEmailAddress());
 				Map<String, List<RecordsCount>> recordsMap = new HashMap<String, List<RecordsCount>>();
 
-				for (EmailDetails primaryEmailDetail1 : detailsV1) {
+				for (EmailDetails emailDetailObject : detailsV1) {
 
-					Map<String, RecordsCount> map = getCountForRecordOld(primaryEmailDetail1);
+					Map<String, RecordsCount> map = getCountForRecordOld(emailDetailObject);
 
 					for (Entry<String, RecordsCount> recordCountMap : map.entrySet()) {
 						String emailAddress = recordCountMap.getKey();
