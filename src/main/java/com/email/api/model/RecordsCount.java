@@ -5,6 +5,9 @@ public class RecordsCount {
 	private int reconCount;
 	private int pendCount;
 	private int hpsCount;
+	private int pharmaCouponCount;
+	private int wpharmaCouponCount;
+	private String pharmaCouponFrequency;
 	private int appealsCount;
 	private int smartEditCount;
 	private int mRMCount;
@@ -16,20 +19,24 @@ public class RecordsCount {
 	private int weeklyMRMCount;
 	private String reconFrequency;
 	private String pendFrequency;
-	private String corporateTaxID;
+	private String appealsFrequency;
+	private String smartEditFrequency;
+	private String corporateProviderMpin;
 	private String providerTin;
 	private String providerName;
 	private String uuID;
 	private String ProviderOrganization;
 
-	public String getCorporateTaxID() {
-		return corporateTaxID;
+	
+	
+
+	public String getCorporateProviderMpin() {
+		return corporateProviderMpin;
 	}
 
-	public void setCorporateTaxID(String corporateTaxID) {
-		this.corporateTaxID = corporateTaxID;
+	public void setCorporateProviderMpin(String corporateProviderMpin) {
+		this.corporateProviderMpin = corporateProviderMpin;
 	}
-	
 
 	public String getUuID() {
 		return uuID;
@@ -173,6 +180,46 @@ public class RecordsCount {
 
 	public void setProviderOrganization(String providerOrganization) {
 		ProviderOrganization = providerOrganization;
+	}
+
+	public String getAppealsFrequency() {
+		return appealsFrequency;
+	}
+
+	public void setAppealsFrequency(String appealsFrequency) {
+		this.appealsFrequency = appealsFrequency;
+	}
+
+	public String getSmartEditFrequency() {
+		return smartEditFrequency;
+	}
+
+	public void setSmartEditFrequency(String smartEditFrequency) {
+		this.smartEditFrequency = smartEditFrequency;
+	}
+
+	public int getPharmaCouponCount() {
+		return pharmaCouponCount;
+	}
+
+	public void setPharmaCouponCount(int pharmaCouponCount) {
+		this.pharmaCouponCount = pharmaCouponCount;
+	}
+
+	public String getPharmaCouponFrequency() {
+		return pharmaCouponFrequency;
+	}
+
+	public void setPharmaCouponFrequency(String pharmaCouponFrequency) {
+		this.pharmaCouponFrequency = pharmaCouponFrequency;
+	}
+
+	public int getWpharmaCouponCount() {
+		return wpharmaCouponCount;
+	}
+
+	public void setWpharmaCouponCount(int wpharmaCouponCount) {
+		this.wpharmaCouponCount = wpharmaCouponCount;
 	}
 	
 	

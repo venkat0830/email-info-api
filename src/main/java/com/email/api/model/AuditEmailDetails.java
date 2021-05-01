@@ -20,6 +20,11 @@ public class AuditEmailDetails {
 
 	private String emailAddress;
 	private String createdDate;
+	
+	private int dailyPharmaCount;
+	private int weeklyPharmaCount;
+	private String pharmaFrequency;
+	
 
 	public int getReconCount() {
 		return reconCount;
@@ -109,6 +114,32 @@ public class AuditEmailDetails {
 
 	public void setCreatedDate(String createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	
+
+	public int getDailyPharmaCount() {
+		return dailyPharmaCount;
+	}
+
+	public void setDailyPharmaCount(int dailyPharmaCount) {
+		this.dailyPharmaCount = dailyPharmaCount;
+	}
+
+	public int getWeeklyPharmaCount() {
+		return weeklyPharmaCount;
+	}
+
+	public void setWeeklyPharmaCount(int weeklyPharmaCount) {
+		this.weeklyPharmaCount = weeklyPharmaCount;
+	}
+
+	public String getPharmaFrequency() {
+		return pharmaFrequency;
+	}
+
+	public void setPharmaFrequency(String pharmaFrequency) {
+		this.pharmaFrequency = pharmaFrequency;
 	}
 	
 	

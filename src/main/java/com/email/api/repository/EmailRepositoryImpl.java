@@ -1,90 +1,88 @@
 package com.email.api.repository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import com.email.api.model.AuditEmailDetails;
 import com.email.api.model.EmailDetails;
 import com.email.api.model.RecordDetails;
 import com.email.api.utilities.LocalDate;
 
 @Repository
-public class EmailRepositoryImpl implements EmailRepository {
+public class EmailRepositoryImpl {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
 
-	// private String emailCollection = "trackEmail";
+	@Autowired
+	MongoOperations mongoOperations;
 
-	@Override
-	public List<EmailDetails> getEmailDetails(String frequency) {
-
-		Query query = new Query();
-		Criteria criteria = new Criteria();
-		if ("Daily".equals(frequency)) {
-			criteria.orOperator(new Criteria("reconFrequency").is(frequency),
-					new Criteria("pendFrequency").is(frequency));
-			query.addCriteria(criteria);
-		}
-		System.out.println("Query: " + query);
-		return mongoTemplate.find(query, EmailDetails.class);
+	public void setMongoTemplate(MongoTemplate mongoTemplate) {
+		this.mongoTemplate = mongoTemplate;
 	}
 
-	@Override
 	public List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency) {
 		Query query = new Query();
 		Criteria criteria = new Criteria();
-		criteria.andOperator(new Criteria("providerTin").is(providerTin),
-				new Criteria("recordInfo.recordType").is(recordType),
-				new Criteria("recordInfo.recordLastUpdateDate").gte(LocalDate.getLastUpdatedDate(frequency)),
-				new Criteria("recordInfo.recordLastUpdateDate").lte(LocalDate.getCurrentDate(frequency)));
-		query.addCriteria(criteria);
-		System.out.println("operated Query:" + query);
-		List<RecordDetails> result = mongoTemplate.find(query, RecordDetails.class);
-		List<String> recordId = new ArrayList<String>();
-		List<RecordDetails> finalList = new ArrayList<RecordDetails>();
-		for (RecordDetails details : result) {
-			if (!recordId.contains(details.getRecordInfo().getRecordId())) {
-				recordId.add(details.getRecordInfo().getRecordId());
-				finalList.add(details);
-			}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("RECON", "trackmyrecordRecon");
+		map.put("PEND", "trackmyrecordPend");
+		map.put("APPEALS", "trackmyrecordAppeals");
+		map.put("SMARTEDIT", "trackmyrecordSmartEdit");
+		map.put("PHARMACOUPON", "trackmyrecordPharmaCoupon");
+
+		if (recordType.equals("RECON") || recordType.equals("PEND") || recordType.equals("APPEALS")
+				|| recordType.equals("HPC")) {
+			criteria.andOperator(new Criteria("providerDetails.providerTin").is(providerTin),
+					new Criteria().orOperator(
+							new Criteria().andOperator(
+									Criteria.where("recordInfo.recordLastUpdateDate")
+											.gte(LocalDate.getLastUpdatedDate(frequency, false)),
+									Criteria.where("recordInfo.recordLastUpdateDate")
+											.lte(LocalDate.getCurrentDay(frequency, false))),
+							new Criteria().andOperator(
+									Criteria.where("recordInfo.recordLastUpdateDate")
+											.gte(LocalDate.getLastUpdatedDate(frequency, true)),
+									Criteria.where("recordInfo.recordLastUpdateDate")
+											.lte(LocalDate.getCurrentDay(frequency, true)))));
+			query.addCriteria(criteria);
+			System.out.println("Operated Query:" + query);
 		}
-		System.out.println("Records Retrieved:" + recordId);
-		return finalList;
+		if (recordType.equals("PHARMACOUPON")) {
+			criteria.andOperator(new Criteria("providerDetails.providerTin").is(providerTin),
+					new Criteria("recordInfo.phrEmailSent").is(false),
+					new Criteria().andOperator(
+							Criteria.where("recordInfo.recordLastUpdateDate")
+									.gte(LocalDate.getLastUpdatedDate(frequency, false)),
+							Criteria.where("recordInfo.recordLastUpdateDate")
+									.lte(LocalDate.getCurrentDay(frequency, false))));
+			query.addCriteria(criteria);
+			System.out.println("Operated Query for PHR:" + query);
+			List<RecordDetails> phr = mongoTemplate.find(query, RecordDetails.class, map.get(recordType));
+			System.out.println("Number of PharmaDetails :" + phr + "for providerTin:" + providerTin);
+			return phr;
+		}
+		List<RecordDetails> result = mongoTemplate.findDistinct(query, "recordInfo.recordId", map.get(recordType),
+				RecordDetails.class);
+		return result;
 	}
 
-//	private List<RecordDetails> getDateFilteredRecords(List<RecordDetails> resultsRecords, String frequency) {
-//		List<RecordDetails> fillterRecords = new ArrayList<>();
-//		Date recoredLastUpdateDate = LocalDate.getLastUpdatedDate(frequency);
-//		Date currentDate = LocalDate.getCurrentDate();
-//		for (RecordDetails record : resultsRecords) {
-//			if (recoredLastUpdateDate
-//					.before(LocalDate.getFromatedDate(record.getRecordInfo().getRecordLastUpdateDate()))
-//					&& currentDate.after(LocalDate.getFromatedDate(record.getRecordInfo().getRecordLastUpdateDate()))) {
-//
-//				fillterRecords.add(record);
-//			}
-//		}
-//		return fillterRecords;
-//	}
-
-	@Override
-	public EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID) {
-		Query query = new Query();
-		query.addCriteria(Criteria.where("corporateTaxID").is(corporateTaxID));
-		query.addCriteria(Criteria.where("providerTin").is(providerTin));
-		query.addCriteria(Criteria.where("uuID").is(uuID));
-		System.out.println("Query : " + query);
-		List<EmailDetails> emailDetails = mongoTemplate.find(query, EmailDetails.class);
-		return emailDetails.get(0);
-	}
-
-	@Override
 	public List<EmailDetails> getDetailsWithPrimaryEmailAddress(String primaryEmailAddress) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("primaryEmailAddress").is(primaryEmailAddress));
@@ -93,21 +91,40 @@ public class EmailRepositoryImpl implements EmailRepository {
 		return details;
 	}
 
-//	@Override
-//	public void saveAudit(AuditEmailDetails auditEmailDeteals) {
-//		
-//		mongoTemplate.save(auditEmailDeteals);
-//	}
+	public void saveAudit(AuditEmailDetails auditEmailDeteals) {
 
-//	@Override
-//	public List<AuditEmailDetails> getAuditEmailDetails(String corporateTaxID, String providerTin, String uuID) {
-//		Query query = new Query();
-//		query.addCriteria(Criteria.where("corporateTaxID").is(corporateTaxID));
-//		query.addCriteria(Criteria.where("providerTin").is(providerTin));
-//		query.addCriteria(Criteria.where("uuID").is(uuID));
-//		System.out.println("Query : " + query);
-//		List<AuditEmailDeteals> emailDetails = mongoTemplate.find(query, AuditEmailDeteals.class);
-//		return emailDetails;
-//	}
+		mongoTemplate.save(auditEmailDeteals);
+	}
 
+	public List<AuditEmailDetails> getAuditEmailDetails(String emailAddress, String providerTin, String uuID) {
+		Query query = new Query();
+		Criteria criteria = new Criteria();
+
+		criteria.andOperator(new Criteria("emailAddress").is(emailAddress), new Criteria("providerTin").is(providerTin),
+				new Criteria("notificationDateAndTime").gte(LocalDateTime.now(ZoneId.of("America/Chicago"))
+						.minusDays(10).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US))),
+				new Criteria("notificationDateAndTime").lte(LocalDateTime.now(ZoneId.of("America/Chicago"))
+						.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US))));
+		query.addCriteria(criteria);
+		System.out.println("Query : " + query);
+		List<AuditEmailDetails> emailDetails = mongoTemplate.find(query, AuditEmailDetails.class);
+		return emailDetails;
+	}
+
+	public void updatePhr(String providerTin, String frequency) {
+		Query query = new Query();
+		Criteria criteria = new Criteria();
+		criteria.andOperator(new Criteria("providerDetails.providerTin").is(providerTin),
+				new Criteria("recordInfo.phrEmailSent").is(false),
+				new Criteria().andOperator(
+						Criteria.where("recordInfo.recordLastUpdateDate")
+								.gte(LocalDate.getLastUpdatedDate(frequency, false)),
+						Criteria.where("recordInfo.recordLastUpdateDate")
+								.lte(LocalDate.getCurrentDay(frequency, false))));
+		query.addCriteria(criteria);
+		Update update = new Update();
+		update.set("recordInfo.phrEmailSent", true);
+
+		mongoOperations.updateMulti(query, update, RecordDetails.class, "trackmyrecordPharmaCoupon");
+	}
 }

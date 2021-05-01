@@ -1,10 +1,13 @@
 package com.email.api.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
-@Document(collection="trackmyrecord")
+//@Document(collection = "trackmyrecord2")
+@CompoundIndexes({
+		@CompoundIndex(name = "providerTin_recordLastUpdatedDate", def = "{'providerDetails.providerTin' : 1, 'recordInfo.recordLastUpdateDate': -1}") })
 public class RecordDetails {
 	@Id
 	private String id;
@@ -65,6 +68,5 @@ public class RecordDetails {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
-	
+
 }

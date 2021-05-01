@@ -1,57 +1,97 @@
 package com.email.api.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@Document(collection = "trackEmail")
+@Document(collection = "trackitEmailReg2")
 @JsonInclude(Include.NON_NULL)
 public class EmailDetails {
 
 	@Id
 	private String id;
 	private String uuID;
-	private String corporateTaxID;
+	private String corporateProviderMpin;
 	private String providerTin;
+	public String getAppealsEmailAddress() {
+		return appealsEmailAddress;
+	}
+
+	public void setAppealsEmailAddress(String appealsEmailAddress) {
+		this.appealsEmailAddress = appealsEmailAddress;
+	}
+
 	private Boolean reconAlert;
 	private Boolean pendAlert;
-	private Boolean smartEditsAlert;
+	private Boolean smartEditAlert;
 	private Boolean hpcEditsAlert;
 	private Boolean appealsAlert;
 	private Boolean mrmAlert;
 	private String reconFrequency;
 	private String pendFrequency;
-	private String smartEditsFrequency;
+	private String smartEditFrequency;
 	private String reconEmailAddress;
 	private String pendEmailAddress;
-	private String smartEditsEmailAddress;
-	private String appealEmailAddress;
+	private String smartEditEmailAddress;
+	private String appealsEmailAddress;
 	private String mrmEmailAddress;
 	private String hpsEmailAddress;
+	private String appealsFrequency;
+//	@Indexed(name = "primaryemailaddress", direction = IndexDirection.ASCENDING)
 	private String primaryEmailAddress;
 	private String providerName;
 	private Boolean isSameEmailAddress;
+	private Boolean pharmaCouponAlert;
+	private String pharmaCouponEmailAddress;
+	private String pharmaCouponFrequency;
 
-	public EmailDetails(String id, String corporateTaxID, String providerTin, Boolean reconAlert, Boolean pendAlert,
-			Boolean smartEditsAlert, String reconFrequency, String pendFrequency, String smartEditsFrequency,
-			String reconEmailAddress, String pendEmailAddress, String smartEditsEmailAddress, String providerName,Boolean isSameEmailAddress) {
-		super();
-		this.id = id;
-		this.corporateTaxID = corporateTaxID;
-		this.providerTin = providerTin;
-		this.reconAlert = reconAlert;
-		this.pendAlert = pendAlert;
-		this.smartEditsAlert = smartEditsAlert;
-		this.reconFrequency = reconFrequency;
-		this.pendFrequency = pendFrequency;
-		this.smartEditsFrequency = smartEditsFrequency;
-		this.reconEmailAddress = reconEmailAddress;
-		this.pendEmailAddress = pendEmailAddress;
-		this.smartEditsEmailAddress = smartEditsEmailAddress;
-		this.providerName = providerName;
-		this.isSameEmailAddress=isSameEmailAddress;
+//	public EmailDetails(String id, String corporateProviderMpin, String providerTin, Boolean reconAlert, Boolean pendAlert,
+//			Boolean smartEditsAlert, String reconFrequency, String pendFrequency, String smartEditFrequency,
+//			String reconEmailAddress, String pendEmailAddress, String smartEditEmailAddress, String providerName,
+//			Boolean isSameEmailAddress) {
+//		super();
+//		this.id = id;
+//		this.corporateProviderMpin = corporateProviderMpin;
+//		this.providerTin = providerTin;
+//		this.reconAlert = reconAlert;
+//		this.pendAlert = pendAlert;
+//		this.smartEditAlert = smartEditsAlert;
+//		this.reconFrequency = reconFrequency;
+//		this.pendFrequency = pendFrequency;
+//		this.smartEditFrequency = smartEditsFrequency;
+//		this.reconEmailAddress = reconEmailAddress;
+//		this.pendEmailAddress = pendEmailAddress;
+//		this.smartEditEmailAddress = smartEditsEmailAddress;
+//		this.providerName = providerName;
+//		this.isSameEmailAddress = isSameEmailAddress;
+//	}
+
+	public Boolean getSmartEditAlert() {
+		return smartEditAlert;
+	}
+
+	public void setSmartEditAlert(Boolean smartEditAlert) {
+		this.smartEditAlert = smartEditAlert;
+	}
+
+	public String getSmartEditFrequency() {
+		return smartEditFrequency;
+	}
+
+	public void setSmartEditFrequency(String smartEditFrequency) {
+		this.smartEditFrequency = smartEditFrequency;
+	}
+
+	public String getSmartEditEmailAddress() {
+		return smartEditEmailAddress;
+	}
+
+	public void setSmartEditEmailAddress(String smartEditEmailAddress) {
+		this.smartEditEmailAddress = smartEditEmailAddress;
 	}
 
 	public String getId() {
@@ -62,12 +102,14 @@ public class EmailDetails {
 		this.id = id;
 	}
 
-	public String getCorporateTaxID() {
-		return corporateTaxID;
+
+
+	public String getCorporateProviderMpin() {
+		return corporateProviderMpin;
 	}
 
-	public void setCorporateTaxID(String corporateTaxID) {
-		this.corporateTaxID = corporateTaxID;
+	public void setCorporateProviderMpin(String corporateProviderMpin) {
+		this.corporateProviderMpin = corporateProviderMpin;
 	}
 
 	public String getProviderTin() {
@@ -134,30 +176,7 @@ public class EmailDetails {
 		this.primaryEmailAddress = primaryEmailAddress;
 	}
 
-	public Boolean getSmartEditsAlert() {
-		return smartEditsAlert;
-	}
-
-	public void setSmartEditsAlert(Boolean smartEditsAlert) {
-		this.smartEditsAlert = smartEditsAlert;
-	}
-
-	public String getSmartEditsFrequency() {
-		return smartEditsFrequency;
-	}
-
-	public void setSmartEditsFrequency(String smartEditsFrequency) {
-		this.smartEditsFrequency = smartEditsFrequency;
-	}
-
-	public String getSmartEditsEmailAddress() {
-		return smartEditsEmailAddress;
-	}
-
-	public void setSmartEditsEmailAddress(String smartEditsEmailAddress) {
-		this.smartEditsEmailAddress = smartEditsEmailAddress;
-	}
-
+	
 	public String getProviderName() {
 		return providerName;
 	}
@@ -190,13 +209,7 @@ public class EmailDetails {
 		this.mrmAlert = mrmAlert;
 	}
 
-	public String getAppealEmailAddress() {
-		return appealEmailAddress;
-	}
-
-	public void setAppealEmailAddress(String appealEmailAddress) {
-		this.appealEmailAddress = appealEmailAddress;
-	}
+	
 
 	public String getMrmEmailAddress() {
 		return mrmEmailAddress;
@@ -213,7 +226,6 @@ public class EmailDetails {
 	public void setHpsEmailAddress(String hpsEmailAddress) {
 		this.hpsEmailAddress = hpsEmailAddress;
 	}
-	
 
 	public String getUuID() {
 		return uuID;
@@ -234,8 +246,39 @@ public class EmailDetails {
 	public void setIsSameEmailAddress(Boolean isSameEmailAddress) {
 		this.isSameEmailAddress = isSameEmailAddress;
 	}
+
+	public Boolean getPharmaCouponAlert() {
+		return pharmaCouponAlert;
+	}
+
+	public void setPharmaCouponAlert(Boolean pharmaCouponAlert) {
+		this.pharmaCouponAlert = pharmaCouponAlert;
+	}
+
+	public String getPharmaCouponEmailAddress() {
+		return pharmaCouponEmailAddress;
+	}
+
+	public void setPharmaCouponEmailAddress(String pharmaCouponEmailAddress) {
+		this.pharmaCouponEmailAddress = pharmaCouponEmailAddress;
+	}
+
+	public String getPharmaCouponFrequency() {
+		return pharmaCouponFrequency;
+	}
+
+	public void setPharmaCouponFrequency(String pharmaCouponFrequency) {
+		this.pharmaCouponFrequency = pharmaCouponFrequency;
+	}
+
+	public String getAppealsFrequency() {
+		return appealsFrequency;
+	}
+
+	public void setAppealsFrequency(String appealsFrequency) {
+		this.appealsFrequency = appealsFrequency;
+	}
 	
 	
 
 }
-

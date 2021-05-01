@@ -2,20 +2,11 @@ package com.email.api.repository;
 
 import java.util.List;
 
-import com.email.api.model.AuditEmailDetails;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import com.email.api.model.EmailDetails;
-import com.email.api.model.RecordDetails;
 
-public interface EmailRepository {
+public interface EmailRepository extends MongoRepository<EmailDetails, String> {
 
-	List<EmailDetails> getEmailDetails(String frequency);
+	List<EmailDetails> findByPrimaryEmailAddress(String primaryEmailAddress);
 
-	List<RecordDetails> getRecordList(String providerTin, String recordType, String frequency);
-
-	EmailDetails getProviderDetails(String corporateTaxID, String providerTin, String uuID);
-	
-//	void saveAudit(AuditEmailDetails auditEmailDeteals);
-	
-	List<EmailDetails> getDetailsWithPrimaryEmailAddress(String primaryEmailAddress);
-	
 }

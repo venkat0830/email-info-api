@@ -1,15 +1,16 @@
 package com.email.api.model;
 
-import org.springframework.data.annotation.Transient;
-
-import com.email.api.utilities.LocalDate;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 public class RecordInfo {
 
 	private String recordId;
+	@Indexed(name = "recordType", direction = IndexDirection.ASCENDING)
 	private String recordType;
 	private String recordStatus;
 	private String recordLastUpdateDate;
+	private Boolean phrEmailSent;
 
 	public RecordInfo() {
 
@@ -54,5 +55,14 @@ public class RecordInfo {
 	public void setRecordLastUpdateDate(String recordLastUpdateDate) {
 		this.recordLastUpdateDate = recordLastUpdateDate;
 	}
+
+	public Boolean getPhrEmailSent() {
+		return phrEmailSent;
+	}
+
+	public void setPhrEmailSent(Boolean phrEmailSent) {
+		this.phrEmailSent = phrEmailSent;
+	}
+	
 
 }
